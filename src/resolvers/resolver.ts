@@ -1,8 +1,9 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import User from '../models/user.js';
 import { GraphQLError } from 'graphql';
 import jwt from 'jsonwebtoken';
+import User from '../models/user.js';
+import { IUser } from '../models/user.js';
 
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 
@@ -10,13 +11,40 @@ const signToken = (userId: string) => {
   return jwt.sign({ userId }, JWT_SECRET!, { expiresIn: JWT_EXPIRES_IN });
 };
 
+export interface IUserInput {
+  input: {
+    email: string;
+    password: string;
+    passwordConfirm?: string;
+  };
+}
+
 const resolvers = {
   Query: {
-    getUser: async (id: string) => {},
+    getUser: async (_: any, args: { userId: string }, context: { user: IUser }) => {
+      const { userId } = args;
+      const user = await User.findById(userId);
+
+      if (!user) {
+        throw new GraphQLError('There is no such user', {
+          extensions: {
+            code: 'NOT_FOUND',
+          },
+        });
+      }
+
+      return {
+        id: user._id,
+        name: user.name,
+        email: user._id.equals(userId) ? user.email : undefined,
+        role: user._id.equals(userId) ? user.role : undefined,
+        pictures: user.pictures,
+      };
+    },
     getUsers: async () => {},
   },
   Mutation: {
-    register: async (_: any, { input }: any) => {
+    register: async (_: any, { input }: IUserInput) => {
       const { email, password, passwordConfirm } = input;
 
       if (password !== passwordConfirm) {
@@ -31,9 +59,9 @@ const resolvers = {
 
       return true;
     },
-    login: async (_: any, { input }: any) => {
+    login: async (_: any, { input }: IUserInput) => {
       const { email, password } = input;
-
+      console.log(email);
       const user = await User.findOne({ email });
 
       if (!user) {

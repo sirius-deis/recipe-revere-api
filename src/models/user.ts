@@ -5,12 +5,12 @@ import bcrypt from 'bcryptjs';
 
 const { BCRYPT_SALT } = process.env;
 
-enum Roles {
+export enum Roles {
   User = 'user',
   Admin = 'admin',
 }
 
-interface IUser {
+export interface IUser {
   name: string;
   email: string;
   password: string;

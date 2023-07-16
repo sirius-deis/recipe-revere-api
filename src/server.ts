@@ -9,16 +9,17 @@ import resolvers from './resolvers/resolver.js';
 import connect from './db/connection.js';
 import app from './app.js';
 import logger from './api/logger.js';
+import verifyToken from './utils/tokenVerification.js';
 
 const { PORT = 3000 } = process.env;
 
-interface Context {
+interface IContext {
   token?: string;
 }
 
 const httpServer = http.createServer(app);
 
-const server = new ApolloServer<Context>({
+const server = new ApolloServer<IContext>({
   typeDefs,
   resolvers,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
@@ -27,7 +28,12 @@ const server = new ApolloServer<Context>({
 
 await server.start();
 
-app.use('/', expressMiddleware(server));
+app.use(
+  '/',
+  expressMiddleware(server, {
+    context: verifyToken,
+  }),
+);
 
 const start = async () => {
   await connect();
