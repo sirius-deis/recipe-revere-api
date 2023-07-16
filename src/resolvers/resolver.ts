@@ -144,6 +144,52 @@ const resolvers = {
 
       return true;
     },
+    updatePassword: async (
+      _: any,
+      { input }: { input: { password: string; newPassword: string; newPasswordConfirm: string } },
+      context: { user: IUserCol },
+    ) => {
+      const { user } = context;
+      const { password, newPassword, newPasswordConfirm } = input;
+
+      if (!(await user.comparePasswords(password))) {
+        throw new GraphQLError('Password is incorrect', {
+          extensions: {
+            code: 'AUTHENTICATION_FAILED',
+          },
+        });
+      }
+
+      if (!(await user.comparePasswords(newPassword))) {
+        throw new GraphQLError('Passwords are the same', {
+          extensions: {
+            code: 'PASSWORD_ARE_THE_SAME',
+          },
+        });
+      }
+
+      if (newPassword !== newPasswordConfirm) {
+        throw new GraphQLError('Passwords are not the same', {
+          extensions: {
+            code: 'PASSWORD_ARE_NOT_THE_SAME',
+          },
+        });
+      }
+
+      user.password = newPassword;
+
+      const token = signToken(user._id.toString());
+
+      await user.updateOne(
+        { _id: user._id },
+        { $set: { password: newPassword } },
+        { runValidators: true },
+      );
+
+      return token;
+    },
+    // updateInfo: async () => {},
+    // logout: () => {},
   },
 };
 

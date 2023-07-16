@@ -5,10 +5,20 @@ const typeDefs = gql`
     password: String!
   }
 
+  input newPassword {
+    newPassword: String!
+    newPasswordConfirm: String!
+  }
+
   input userInput {
     email: String!
     password: String!
-    passwordConfirm: String
+    passwordConfirm: String!
+  }
+
+  input userInfoInput {
+    email: String
+    name: String
   }
 
   type User {
@@ -28,6 +38,8 @@ const typeDefs = gql`
     register(input: userInput): Boolean
     login(input: userInput): UserWithToken
     delete(input: userPassword): Boolean
+    updatePassword(input: userPassword, input: newPassword): String
+    update(input: userInfoInput): Boolean
   }
 
   type UsersWithAmount {
@@ -38,6 +50,7 @@ const typeDefs = gql`
   type Query {
     getUser(userId: String): User
     getUsers(page: Int): UsersWithAmount
+    logout: Boolean
   }
 `;
 
