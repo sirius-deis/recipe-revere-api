@@ -7,23 +7,32 @@ const typeDefs = gql`
     passwordConfirm: String
   }
 
-  type Mutation {
-    register(input: userInput): Boolean
-    login(input: userInput): User
-  }
-
   type User {
     id: ID!
     name: String
     email: String
     role: String
     pictures: [String]
+  }
+
+  type UserWithToken {
+    user: User
     token: String
+  }
+
+  type Mutation {
+    register(input: userInput): Boolean
+    login(input: userInput): UserWithToken
+  }
+
+  type UsersWithAmount {
+    users: [User]
+    amount: Int
   }
 
   type Query {
     getUser(userId: String): User
-    getUsers: [User]
+    getUsers(page: Int): UsersWithAmount
   }
 `;
 

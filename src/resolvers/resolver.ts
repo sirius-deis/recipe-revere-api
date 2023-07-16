@@ -19,6 +19,8 @@ export interface IUserInput {
   };
 }
 
+const USERS_PER_PAGE = 10;
+
 const resolvers = {
   Query: {
     getUser: async (_: any, args: { userId: string }, context: { user: IUser }) => {
@@ -41,7 +43,27 @@ const resolvers = {
         pictures: user.pictures,
       };
     },
-    getUsers: async () => {},
+    getUsers: async (_: any, args: { page: number }) => {
+      const { page } = args;
+      const users = await User.find()
+        .skip(USERS_PER_PAGE * (page - 1))
+        .limit(USERS_PER_PAGE);
+
+      if (users.length < 1) {
+        throw new GraphQLError('There is no users left', {
+          extensions: {
+            code: 'NOT_FOUND',
+          },
+        });
+      }
+
+      const usersAmount = await User.countDocuments();
+
+      return {
+        users,
+        amount: usersAmount,
+      };
+    },
   },
   Mutation: {
     register: async (_: any, { input }: IUserInput) => {
