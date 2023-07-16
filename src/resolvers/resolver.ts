@@ -1,4 +1,4 @@
-import User from 'src/models/user';
+import User from '../models/user.js';
 
 const resolvers = {
   Query: {
@@ -6,7 +6,17 @@ const resolvers = {
     getUsers: async () => {},
   },
   Mutation: {
-    register: async (email: string, password: string, passwordConfirm: string) => {},
+    register: async (_: any, { input }: any) => {
+      const { email, password, passwordConfirm } = input;
+
+      if (password !== passwordConfirm) {
+        throw new Error('Passwords are not the same');
+      }
+
+      await User.create({ email, password });
+
+      return true;
+    },
     login: async (email: string, password: string) => {},
   },
 };

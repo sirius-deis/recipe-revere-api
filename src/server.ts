@@ -6,6 +6,7 @@ import http from 'http';
 dotenv.config();
 import typeDefs from './schemas/schema.js';
 import resolvers from './resolvers/resolver.js';
+import connect from './db/connection.js';
 import app from './app.js';
 import logger from './api/logger.js';
 
@@ -27,5 +28,11 @@ await server.start();
 
 app.use('/', expressMiddleware(server));
 
-await new Promise<void>((resolve) => httpServer.listen({ port: PORT }, resolve));
-logger.info(`Server ready at http://localhost:${PORT}/graphql`);
+const start = async () => {
+  await connect();
+  httpServer.listen({ port: PORT }, () => {
+    logger.info(`Server ready at http://localhost:${PORT}/graphql`);
+  });
+};
+
+await start();
