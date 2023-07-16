@@ -1,16 +1,17 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import { Schema, Model, model } from 'mongoose';
+import { Schema, Model, model, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const { BCRYPT_SALT } = process.env;
 
-export enum Roles {
+enum Roles {
   User = 'user',
   Admin = 'admin',
 }
 
 export interface IUser {
+  _id: Types.ObjectId;
   name: string;
   email: string;
   password: string;
@@ -21,13 +22,13 @@ export interface IUser {
   pictures: [string];
 }
 
-interface IUserMethods {
+export interface IUserMethods {
   comparePasswords: (assumedPassword: string) => Promise<boolean>;
 }
 
-type UserModal = Model<IUser, {}, IUserMethods>;
+export type IUserModal = Model<IUser, {}, IUserMethods>;
 
-const userSchema = new Schema<IUser, UserModal, IUserMethods>({
+const userSchema = new Schema<IUser, IUserModal, IUserMethods>({
   name: {
     type: String,
     minlength: 4,
@@ -88,6 +89,6 @@ userSchema.methods.comparePasswords = async function (assumedPassword: string) {
   return await bcrypt.compare(assumedPassword, this.password);
 };
 
-const User = model<IUser, UserModal>('User', userSchema);
+const User = model<IUser, IUserModal>('User', userSchema);
 
 export default User;

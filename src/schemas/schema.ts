@@ -1,6 +1,10 @@
 import gql from 'graphql-tag';
 
 const typeDefs = gql`
+  input userPassword {
+    password: String!
+  }
+
   input userInput {
     email: String!
     password: String!
@@ -23,6 +27,7 @@ const typeDefs = gql`
   type Mutation {
     register(input: userInput): Boolean
     login(input: userInput): UserWithToken
+    delete(input: userPassword): Boolean
   }
 
   type UsersWithAmount {

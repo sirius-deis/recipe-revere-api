@@ -2,8 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { GraphQLError } from 'graphql';
 import jwt from 'jsonwebtoken';
-import User from '../models/user.js';
-import { IUser } from '../models/user.js';
+import User, { IUser, IUserMethods, IUserModal } from '../models/user.js';
 
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 
@@ -11,7 +10,7 @@ const signToken = (userId: string) => {
   return jwt.sign({ userId }, JWT_SECRET!, { expiresIn: JWT_EXPIRES_IN });
 };
 
-export interface IUserInput {
+interface IUserInput {
   input: {
     email: string;
     password: string;
@@ -19,11 +18,13 @@ export interface IUserInput {
   };
 }
 
+type IUserCol = IUser & IUserMethods & IUserModal;
+
 const USERS_PER_PAGE = 10;
 
 const resolvers = {
   Query: {
-    getUser: async (_: any, args: { userId: string }, context: { user: IUser }) => {
+    getUser: async (_: any, args: { userId: string }, context: { user: IUserCol }) => {
       const { userId } = args;
       const user = await User.findById(userId);
 
@@ -38,8 +39,8 @@ const resolvers = {
       return {
         id: user._id,
         name: user.name,
-        email: user._id.equals(userId) ? user.email : undefined,
-        role: user._id.equals(userId) ? user.role : undefined,
+        email: context.user._id.equals(userId) ? user.email : undefined,
+        role: context.user._id.equals(userId) ? user.role : undefined,
         pictures: user.pictures,
       };
     },
@@ -83,7 +84,6 @@ const resolvers = {
     },
     login: async (_: any, { input }: IUserInput) => {
       const { email, password } = input;
-      console.log(email);
       const user = await User.findOne({ email });
 
       if (!user) {
@@ -113,13 +113,36 @@ const resolvers = {
       const token = signToken(user._id.toString());
 
       return {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        pictures: user.pictures,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          pictures: user.pictures,
+        },
         token,
       };
+    },
+    delete: async (
+      _: any,
+      { input }: { input: { password: string } },
+      context: { user: IUserCol },
+    ) => {
+      const { user } = context;
+
+      const { password } = input;
+
+      if (!(await user.comparePasswords(password))) {
+        throw new GraphQLError('Password is incorrect', {
+          extensions: {
+            code: 'AUTHENTICATION_FAILED',
+          },
+        });
+      }
+
+      await user.deleteOne();
+
+      return true;
     },
   },
 };
