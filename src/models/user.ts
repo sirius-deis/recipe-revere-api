@@ -1,4 +1,7 @@
 import { Schema, Types, model } from 'mongoose';
+import bcrypt from 'bcryptjs';
+
+const { BCRYPT_SALT } = process.env;
 
 enum Roles {
   User = 'user',
@@ -12,8 +15,8 @@ interface IUser {
   isActive: boolean;
   isBlocked: boolean;
   role: Roles;
-  passwordChangedAt: Date;
-  picture: [string];
+  passwordChangedAt: number;
+  pictures: [string];
 }
 
 const userSchema = new Schema<IUser>({
@@ -48,13 +51,34 @@ const userSchema = new Schema<IUser>({
     default: Roles.User,
   },
   passwordChangedAt: {
-    type: Date,
+    type: Number,
     default: Date.now(),
   },
-  picture: {
+  pictures: {
     type: [String],
   },
 });
+
+userSchema.pre('save', function (next) {
+  if (this.isNew || !this.passwordChangedAt) {
+    return next();
+  }
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+  const hash = await bcrypt.hash(this.password, +BCRYPT_SALT!);
+  this.password = hash;
+  next();
+});
+
+userSchema.methods.comparePasswords = async function (assumedPassword: string) {
+  return await bcrypt.compare(assumedPassword, this.password);
+};
 
 const User = model('User', userSchema);
 
