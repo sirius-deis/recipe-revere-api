@@ -7,7 +7,7 @@
     "test": "jest",
     "coverage": "jest - --coverage",
     "compile": "tsc",
-    "start": "npm run compile && ts-node ./src/server.ts",
+    "start": "npm run compile && node ./dist/server.js",
     "dev": "nodemon ./dist/server.js",
     "lint": "eslint ./src --ext .ts",
     "debug": "ts-node --inspect ./dist/server.js"
@@ -18,6 +18,7 @@
   "dependencies": {
     "@apollo/server": "^4.7.5",
     "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^16.1.4",
     "express": "^4.18.2",
@@ -28,12 +29,13 @@
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.2.4",
-    "morgan": "^1.10.0",
     "redis": "^4.6.7",
     "winston": "^3.9.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
+    "@types/compression": "^1.7.2",
+    "@types/cors": "^2.8.13",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
     "@types/node": "^20.3.2",
@@ -50,5 +52,6 @@
   },
   "engines": {
     "node": ">=19.8.0"
-  }
+  },
+  "type": "module"
 }
