@@ -1,4 +1,6 @@
-import { Schema, Types, model } from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
+import { Schema, Model, model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
 const { BCRYPT_SALT } = process.env;
@@ -19,7 +21,13 @@ interface IUser {
   pictures: [string];
 }
 
-const userSchema = new Schema<IUser>({
+interface IUserMethods {
+  comparePasswords: (assumedPassword: string) => Promise<boolean>;
+}
+
+type UserModal = Model<IUser, {}, IUserMethods>;
+
+const userSchema = new Schema<IUser, UserModal, IUserMethods>({
   name: {
     type: String,
     minlength: 4,
@@ -80,6 +88,6 @@ userSchema.methods.comparePasswords = async function (assumedPassword: string) {
   return await bcrypt.compare(assumedPassword, this.password);
 };
 
-const User = model('User', userSchema);
+const User = model<IUser, UserModal>('User', userSchema);
 
 export default User;

@@ -1,9 +1,9 @@
 import dotenv from 'dotenv';
+dotenv.config();
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import http from 'http';
-dotenv.config();
 import typeDefs from './schemas/schema.js';
 import resolvers from './resolvers/resolver.js';
 import connect from './db/connection.js';
@@ -22,6 +22,7 @@ const server = new ApolloServer<Context>({
   typeDefs,
   resolvers,
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  includeStacktraceInErrorResponses: false,
 });
 
 await server.start();
