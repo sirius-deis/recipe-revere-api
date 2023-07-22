@@ -39,7 +39,7 @@ const typeDefs = gql`
     login(input: userInput): UserWithToken
     delete(input: userPassword): Boolean
     updatePassword(input: userPassword, input: newPassword): String
-    update(input: userInfoInput): Boolean
+    updateInfo(input: userInfoInput): Boolean
   }
 
   type UsersWithAmount {

@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import { GraphQLError } from 'graphql';
 import jwt from 'jsonwebtoken';
-import User, { IUser, IUserMethods, IUserModal } from '../models/user.js';
+import User, { IUserType } from '../models/user.js';
 
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 
@@ -18,13 +18,11 @@ interface IUserInput {
   };
 }
 
-type IUserCol = IUser & IUserMethods & IUserModal;
-
 const USERS_PER_PAGE = 10;
 
 const resolvers = {
   Query: {
-    getUser: async (_: any, args: { userId: string }, context: { user: IUserCol }) => {
+    getUser: async (_: any, args: { userId: string }, context: { user: IUserType }) => {
       const { userId } = args;
       const user = await User.findById(userId);
 
@@ -126,7 +124,7 @@ const resolvers = {
     delete: async (
       _: any,
       { input }: { input: { password: string } },
-      context: { user: IUserCol },
+      context: { user: IUserType },
     ) => {
       const { user } = context;
 
@@ -147,7 +145,7 @@ const resolvers = {
     updatePassword: async (
       _: any,
       { input }: { input: { password: string; newPassword: string; newPasswordConfirm: string } },
-      context: { user: IUserCol },
+      context: { user: IUserType },
     ) => {
       const { user } = context;
       const { password, newPassword, newPasswordConfirm } = input;
@@ -188,7 +186,28 @@ const resolvers = {
 
       return token;
     },
-    // updateInfo: async () => {},
+    updateInfo: async (
+      _: any,
+      { input }: { input: { name: string } },
+      context: { user: IUserType },
+    ) => {
+      const { user } = context;
+      const { name } = input;
+
+      if (name.trim().length < 4) {
+        throw new GraphQLError("Name can't be shorter than 4 characters long", {
+          extensions: {
+            code: 'VALIDATION_ERROR',
+          },
+        });
+      }
+
+      user.name = name;
+
+      await user.save();
+
+      return true;
+    },
     // logout: () => {},
   },
 };

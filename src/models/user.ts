@@ -24,9 +24,12 @@ export interface IUser {
 
 export interface IUserMethods {
   comparePasswords: (assumedPassword: string) => Promise<boolean>;
+  save: () => Promise<IUser | never>;
 }
 
 export type IUserModal = Model<IUser, {}, IUserMethods>;
+
+export type IUserType = IUser & IUserMethods & IUserModal;
 
 const userSchema = new Schema<IUser, IUserModal, IUserMethods>({
   name: {
