@@ -208,7 +208,7 @@ const resolvers = {
 
       return true;
     },
-    // logout: () => {},
+    logout: () => {},
   },
 };
 
