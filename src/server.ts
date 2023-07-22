@@ -10,6 +10,7 @@ import connect from './db/connection.js';
 import app from './app.js';
 import logger from './api/logger.js';
 import verifyToken from './utils/tokenVerification.js';
+import { redisConnect } from './db/redisConnection.js';
 
 const { PORT = 3000 } = process.env;
 
@@ -37,6 +38,7 @@ app.use(
 
 const start = async () => {
   await connect();
+  // await redisConnect();
   httpServer.listen({ port: PORT }, () => {
     logger.info(`Server ready at http://localhost:${PORT}/graphql`);
   });

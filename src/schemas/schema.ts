@@ -5,19 +5,19 @@ const typeDefs = gql`
     password: String!
   }
 
-  input newPassword {
+  input updatePasswordInput {
     newPassword: String!
     newPasswordConfirm: String!
+    password: String!
   }
 
   input userInput {
     email: String!
     password: String!
-    passwordConfirm: String!
+    passwordConfirm: String
   }
 
   input userInfoInput {
-    email: String
     name: String
   }
 
@@ -38,7 +38,7 @@ const typeDefs = gql`
     register(input: userInput): Boolean
     login(input: userInput): UserWithToken
     delete(input: userPassword): Boolean
-    updatePassword(input: userPassword, input: newPassword): String
+    updatePassword(input: updatePasswordInput): String
     updateInfo(input: userInfoInput): Boolean
   }
 

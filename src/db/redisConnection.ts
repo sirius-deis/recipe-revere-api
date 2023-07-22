@@ -6,12 +6,12 @@ const client = createClient();
 client.on('connect', () => logger.info('Redis client connected'));
 client.on('error', logger.error);
 
-export const redisConnect = () => {
-  client.connect();
+export const redisConnect = async () => {
+  await client.connect();
 };
 
-export const redisDisconnect = () => {
-  client.disconnect();
+export const redisDisconnect = async () => {
+  await client.disconnect();
 };
 
 export const getValue = async (key: string, value: string) => {
