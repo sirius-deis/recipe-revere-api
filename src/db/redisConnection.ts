@@ -1,5 +1,5 @@
 import { createClient } from 'redis';
-import logger from 'src/api/logger';
+import logger from '../api/logger.js';
 
 const client = createClient();
 
@@ -14,13 +14,13 @@ export const redisDisconnect = async () => {
   await client.disconnect();
 };
 
-export const getValue = async (key: string, value: string) => {
-  const retrievedValue = await client.get(`${key}-${value}`);
+export const getValue = async (value: string) => {
+  const retrievedValue = await client.get(`bl-${value}`);
   if (retrievedValue) {
     return JSON.parse(retrievedValue);
   }
   return null;
 };
 
-export const setValue = async (key: string, value: string, options: { EX: number }) =>
-  await client.set(`${key}-${value}`, JSON.stringify(value), options);
+export const setValue = async (value: string, options: { EX: number }) =>
+  await client.set(`bl-${value}`, JSON.stringify(value), options);

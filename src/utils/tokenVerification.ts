@@ -31,7 +31,7 @@ const verifyToken = async ({ req, res }: { req: Request; res: Response }) => {
 
   const user = await User.findById((payload as UserPayload).userId);
   const exp = (payload as JwtExpPayload).exp;
-  return { user, exp };
+  return { user, exp, token, res };
 };
 
 export default verifyToken;

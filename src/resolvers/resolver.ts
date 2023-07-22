@@ -4,6 +4,7 @@ const resolvers = {
   Query: {
     getUser: userResolver.getUser,
     getUsers: userResolver.getUsers,
+    logout: userResolver.logout,
   },
   Mutation: {
     register: userResolver.register,
@@ -11,7 +12,6 @@ const resolvers = {
     delete: userResolver.delete,
     updatePassword: userResolver.updatePassword,
     updateInfo: userResolver.updateInfo,
-    // logout: () => {},
   },
 };
 

@@ -38,7 +38,7 @@ app.use(
 
 const start = async () => {
   await connect();
-  // await redisConnect();
+  await redisConnect();
   httpServer.listen({ port: PORT }, () => {
     logger.info(`Server ready at http://localhost:${PORT}/graphql`);
   });

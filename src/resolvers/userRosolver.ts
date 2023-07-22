@@ -1,9 +1,11 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { GraphQLError } from 'graphql';
+import { Response } from 'express';
 import jwt from 'jsonwebtoken';
 import User, { IUserType } from '../models/user.js';
 import authWrapper from '../utils/auth.js';
+import { setValue } from '../db/redisConnection.js';
 
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 
@@ -78,7 +80,7 @@ const userResolver = {
 
     return true;
   },
-  login: async (_: any, { input }: IUserInput) => {
+  login: async (_: any, { input }: IUserInput, context: { res: Response }) => {
     const { email, password } = input;
     const user = await User.findOne({ email });
 
@@ -107,6 +109,9 @@ const userResolver = {
     }
 
     const token = signToken(user._id.toString());
+
+    //TODO: add refresh token
+    context.res.cookie('refresh-token', 'refresh');
 
     return {
       user: {
@@ -208,7 +213,17 @@ const userResolver = {
       return true;
     },
   ),
-  // logout: () => {},
+  logout: authWrapper(
+    async (_: any, __: any, context: { exp: any; token: string; res: Response }) => {
+      const { exp, token, res } = context;
+
+      res.clearCookie('refresh-token');
+
+      setValue(token, { EX: exp });
+
+      return true;
+    },
+  ),
 };
 
 export default userResolver;
