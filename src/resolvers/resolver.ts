@@ -1,10 +1,13 @@
-import userResolver from './userRosolver.js';
+import userResolver from './userResolver.js';
+import recipeResolver from './recipeResolver.js';
 
 const resolvers = {
   Query: {
     getUser: userResolver.getUser,
     getUsers: userResolver.getUsers,
     logout: userResolver.logout,
+    getRecipes: recipeResolver.getRecipes,
+    getRecipe: recipeResolver.getRecipe,
   },
   Mutation: {
     register: userResolver.register,

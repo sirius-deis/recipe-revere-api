@@ -1,5 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
 import { GraphQLError } from 'graphql';
 import { Response } from 'express';
 import jwt from 'jsonwebtoken';
@@ -14,11 +12,9 @@ const signToken = (userId: string) => {
 };
 
 interface IUserInput {
-  input: {
-    email: string;
-    password: string;
-    passwordConfirm?: string;
-  };
+  email: string;
+  password: string;
+  passwordConfirm?: string;
 }
 
 const USERS_PER_PAGE = 10;
@@ -65,7 +61,7 @@ const userResolver = {
       amount: usersAmount,
     };
   }),
-  register: async (_: any, { input }: IUserInput) => {
+  register: async (_: any, { input }: { input: IUserInput }) => {
     const { email, password, passwordConfirm } = input;
 
     if (password !== passwordConfirm) {
@@ -80,7 +76,7 @@ const userResolver = {
 
     return true;
   },
-  login: async (_: any, { input }: IUserInput, context: { res: Response }) => {
+  login: async (_: any, { input }: { input: IUserInput }, context: { res: Response }) => {
     const { email, password } = input;
     const user = await User.findOne({ email });
 
@@ -219,7 +215,7 @@ const userResolver = {
 
       res.clearCookie('refresh-token');
 
-      setValue(token, { EX: exp });
+      setValue(`bl-${token}`, token, { EX: exp });
 
       return true;
     },

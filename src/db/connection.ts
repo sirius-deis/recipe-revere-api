@@ -1,5 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
 import mongoose, { ConnectOptions } from 'mongoose';
 import logger from '../api/logger.js';
 

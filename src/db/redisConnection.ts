@@ -14,13 +14,13 @@ export const redisDisconnect = async () => {
   await client.disconnect();
 };
 
-export const getValue = async (value: string) => {
-  const retrievedValue = await client.get(`bl-${value}`);
+export const getValue = async (key: string) => {
+  const retrievedValue = await client.get(key);
   if (retrievedValue) {
     return JSON.parse(retrievedValue);
   }
   return null;
 };
 
-export const setValue = async (value: string, options: { EX: number }) =>
-  await client.set(`bl-${value}`, JSON.stringify(value), options);
+export const setValue = async (key: string, value: any, options: { EX: number }) =>
+  await client.set(key, JSON.stringify(value), options);

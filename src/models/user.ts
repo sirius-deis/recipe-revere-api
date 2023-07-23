@@ -1,5 +1,3 @@
-import dotenv from 'dotenv';
-dotenv.config();
 import { Schema, Model, model, Types } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
