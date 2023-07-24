@@ -12,11 +12,19 @@ const uri = 'http://www.edamam.com/ontologies/edamam.owl#recipe_';
 const recipeResolver = {
   getRecipes: authWrapper(
     async (_: any, args: { query: string; page: number; size: number }, __: any) => {
-      const { query, page = 1, size = 10 } = args;
-      const from = size * (page - 1);
+      const { query, page = 1 } = args;
       const response = await axios.get(url, { params: { q: query } });
+      const data = response.data;
 
-      return {};
+      if (data.hits.length < 1) {
+        throw new GraphQLError('There are no recipes left', {
+          extensions: {
+            code: 'NOT_FOUND',
+          },
+        });
+      }
+
+      return data.hits.map((hit: any) => hit.recipe);
     },
   ),
   getRecipe: authWrapper(async (_: any, args: { id: string }, __: any) => {
