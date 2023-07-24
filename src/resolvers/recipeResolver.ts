@@ -27,8 +27,17 @@ const recipeResolver = {
     }
     const response = await axios.get(urlSingle, { params: { uri: `${uri}${id}` } });
     const data = response.data;
+    if (data.hits.length < 1) {
+      throw new GraphQLError('Recipe with provide id does not exist', {
+        extensions: {
+          code: 'NOT_FOUND',
+        },
+      });
+    }
     const recipeFromResponse = data.hits[0].recipe;
-    await setValue(`recipe-${recipeFromResponse.url}`, recipeFromResponse, { EX: 60 * 60 * 24 });
+    await setValue(`recipe-${recipeFromResponse.url}`, recipeFromResponse, {
+      EX: 60 * 60 * 24 * 7,
+    });
     return recipeFromResponse;
   }),
 };
