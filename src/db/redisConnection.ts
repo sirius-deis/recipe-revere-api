@@ -22,5 +22,7 @@ export const getValue = async (key: string) => {
   return null;
 };
 
-export const setValue = async (key: string, value: any, options: { EX: number }) =>
+const WEEK = 60 * 60 * 24 * 7;
+
+export const setValue = async (key: string, value: any, options: { EX: number } = { EX: WEEK }) =>
   await client.set(key, JSON.stringify(value), options);

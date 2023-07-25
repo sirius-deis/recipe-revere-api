@@ -48,15 +48,27 @@ const typeDefs = gql`
   }
 
   type Recipe {
+    url: String
     label: String
     image: String
+    source: String
+    dietLabels: [String]
+    healthLabels: [String]
+    cautions: [String]
+    ingredientLines: [String]
+    calories: Int
+    totalWeight: Int
+    totalTime: Int
+    cuisineType: [String]
+    mealType: [String]
+    dishType: [String]
   }
 
   type Query {
     getUser(userId: String!): User
     getUsers(page: Int): UsersWithAmount
     logout: Boolean
-    getRecipes(query: String!, page: Int, size: Int): [Recipe]
+    getRecipes(query: String!, page: Int): [Recipe]
     getRecipe(id: String!): Recipe
   }
 `;

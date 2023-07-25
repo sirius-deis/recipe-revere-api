@@ -9,11 +9,122 @@ const url = `https://api.edamam.com/api/recipes/v2?type=public&app_id=${EDAMAM_A
 const urlSingle = `https://api.edamam.com/api/recipes/v2/by-uri?type=public&app_id=${EDAMAM_APPLICATION_ID}&app_key=${EDAMAM_APPLICATION_KEY}`;
 const uri = 'http://www.edamam.com/ontologies/edamam.owl#recipe_';
 
+interface Recipe {
+  url: string;
+  label: string;
+  image: string;
+  images: {
+    THUMBNAIL: {
+      url: string;
+      width: number;
+      height: number;
+    };
+    SMALL: {
+      url: string;
+      width: number;
+      height: number;
+    };
+    REGULAR: {
+      url: string;
+      width: number;
+      height: number;
+    };
+  };
+  source: string;
+  dietLabels: [string];
+  healthLabels: [string];
+  cautions: [string];
+  ingredientLines: [string];
+  calories: number;
+  totalWeight: number;
+  totalTime: number;
+  cuisineType: [string];
+  mealType: [string];
+  dishType: [string];
+}
+
+const extractRecipesFromObject = (recipes: [{ recipe: Recipe }]) => {
+  return recipes.map((hit: { recipe: Recipe }) => hit.recipe);
+};
+
+const fetchRecipesToPage = async (
+  currentCursor: number,
+  page: number,
+  currentLink: string,
+  recipesFromRedis?: any,
+) => {
+  const recipesToInsert: any = {};
+  let nextLink = currentLink;
+  let count = currentCursor;
+
+  while (count > 0) {
+    if (recipesFromRedis[count.toString()]) {
+      nextLink = recipesFromRedis[count.toString()].next;
+      count++;
+      break;
+    }
+    count--;
+  }
+
+  count ||= 1;
+
+  while (count < page) {
+    const tempResponse = await axios.get(nextLink);
+    const data = tempResponse.data;
+    nextLink = data._links.next.href;
+    recipesToInsert[count.toString()] = { hits: data.hits, next: data._links.next.href };
+    count++;
+  }
+
+  const response = await axios.get(nextLink);
+  return { response, recipesToInsert };
+};
+
 const recipeResolver = {
   getRecipes: authWrapper(
     async (_: any, args: { query: string; page: number; size: number }, __: any) => {
       const { query, page = 1 } = args;
-      const response = await axios.get(url, { params: { q: query } });
+
+      if (page < 1) {
+        throw new GraphQLError("Page can't be zero or negative value", {
+          extensions: {
+            code: 'Range_Error',
+          },
+        });
+      }
+
+      const recipesFromRedis = await getValue(`recipes_pages_q:${query}`);
+
+      if (recipesFromRedis && recipesFromRedis[page.toString()]) {
+        console.log('REDIS');
+        return extractRecipesFromObject(recipesFromRedis[page.toString()].hits);
+      }
+
+      let response;
+      let recipesToInsert: any = {};
+
+      if (recipesFromRedis && page > 1) {
+        const prevPage = page - 1;
+        const prevPageFromDB = recipesFromRedis[prevPage.toString()];
+        if (prevPageFromDB) {
+          response = await axios.get(prevPageFromDB.next);
+        } else {
+          let count = prevPage;
+          const result = await fetchRecipesToPage(
+            count,
+            page,
+            `${url}&q=${query}`,
+            recipesFromRedis,
+          );
+          response = result.response;
+          recipesToInsert = result.recipesToInsert;
+        }
+      } else {
+        const result = await fetchRecipesToPage(1, page, `${url}&q=${query}`);
+        response = result.response;
+        recipesToInsert = result.recipesToInsert;
+      }
+
       const data = response.data;
 
       if (data.hits.length < 1) {
@@ -24,7 +135,13 @@ const recipeResolver = {
         });
       }
 
-      return data.hits.map((hit: any) => hit.recipe);
+      await setValue(`recipes_pages_q:${query}`, {
+        ...recipesFromRedis,
+        ...recipesToInsert,
+        [page.toString()]: { hits: data.hits, next: data._links.next.href },
+      });
+
+      return extractRecipesFromObject(data.hits);
     },
   ),
   getRecipe: authWrapper(async (_: any, args: { id: string }, __: any) => {
@@ -43,9 +160,7 @@ const recipeResolver = {
       });
     }
     const recipeFromResponse = data.hits[0].recipe;
-    await setValue(`recipe-${recipeFromResponse.url}`, recipeFromResponse, {
-      EX: 60 * 60 * 24 * 7,
-    });
+    await setValue(`recipe-${recipeFromResponse.url}`, recipeFromResponse);
     return recipeFromResponse;
   }),
 };
