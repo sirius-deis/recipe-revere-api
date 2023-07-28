@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { GraphQLError } from 'graphql';
 import { Request, Response } from 'express';
 import User from '../models/user.js';
 
@@ -27,6 +28,25 @@ const verifyToken = async ({ req, res }: { req: Request; res: Response }) => {
   }
 
   const user = await User.findById((payload as UserPayload).userId);
+
+  if (!user?.isActive) {
+    throw new GraphQLError('Please activate account first', {
+      extensions: {
+        code: 'AUTHENTICATION_FAILED',
+        http: { status: 401 },
+      },
+    });
+  }
+
+  if (!user.isBlocked) {
+    throw new GraphQLError('You was blocked', {
+      extensions: {
+        code: 'AUTHENTICATION_FAILED',
+        http: { status: 401 },
+      },
+    });
+  }
+
   const exp = (payload as JwtExpPayload).exp;
   return { user, exp, token, res };
 };

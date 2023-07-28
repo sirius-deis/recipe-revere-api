@@ -31,7 +31,7 @@ const sendEmail = async (
   template: string,
   context: { title: string; firstName?: string; link: string },
 ) => {
-  const rendered = await ejs.renderFile(`${__dirname}/../views/root.ejs`, {
+  const rendered = await ejs.renderFile(`${__dirname}/../views/${template}.ejs`, {
     ...context,
     homeLink,
     logo: '',
