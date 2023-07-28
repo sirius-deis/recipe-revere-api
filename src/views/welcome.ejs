@@ -1,0 +1,40 @@
+<%- include(./includes/topLayout.ejs) %>
+
+<div style="padding: 20px; background-color: rgb(255, 255, 255); border-radius: 4px">
+  <div style="color: rgb(0, 0, 0); text-align: left">
+    <h1 style="margin: 16px 0px">Welcome to RecipeRevere</h1>
+    <p style="padding-bottom: 16px">Hello <%= firstName %>,</p>
+    <p style="padding-bottom: 16px">
+      Thank you for signing up to RecipeRevere. We're really happy to have you onboard! Click the
+      link below to login to your account:
+    </p>
+    <p style="padding-bottom: 16px">
+      <a
+        href="<%= link %>"
+        target="_blank"
+        style="
+          padding: 12px 24px;
+          border-radius: 4px;
+          color: #fff;
+          background: #2b52f5;
+          display: inline-block;
+          margin: 8px 0px;
+          text-decoration: none;
+        "
+        >Login to your account</a
+      >
+    </p>
+    <p style="padding-bottom: 16px">Best regards,</p>
+    <p style="padding-bottom: 16px">
+      <%= from %><br /><span style="color: #999">CEO and Founder</span><br /><span
+        style="color: #999"
+        >The Recipe Revere team</span
+      >
+    </p>
+  </div>
+</div>
+<div style="padding-top: 20px; color: rgb(153, 153, 153); text-align: center">
+  <p style="padding-bottom: 16px">Made with ♥ in Paris</p>
+</div>
+
+<%- include(./includes/bottomLayout.ejs) %>
