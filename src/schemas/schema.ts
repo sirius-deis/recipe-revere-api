@@ -11,6 +11,10 @@ const typeDefs = gql`
     password: String!
   }
 
+  input userEmail {
+    email: String!
+  }
+
   input userInput {
     email: String!
     password: String!
@@ -34,12 +38,19 @@ const typeDefs = gql`
     token: String
   }
 
+  input resetPasswordInput {
+    newPassword: String!
+    newPasswordConfirm: String!
+  }
+
   type Mutation {
     register(input: userInput!): Boolean
     login(input: userInput!): UserWithToken
     delete(input: userPassword!): Boolean
     updatePassword(input: updatePasswordInput!): String
     updateInfo(input: userInfoInput!): Boolean
+    forgetPassword(input: userEmail!): String
+    resetPassword(input: resetPasswordInput!): String
   }
 
   type UsersWithAmount {
@@ -70,6 +81,7 @@ const typeDefs = gql`
     logout: Boolean
     getRecipes(query: String!, page: Int): [Recipe]
     getRecipe(id: String!): Recipe
+    activate: String
   }
 `;
 
