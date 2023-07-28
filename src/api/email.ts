@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import ejs from 'ejs';
-import htmlToText from 'html-to-text';
+import { convert } from 'html-to-text';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -23,25 +23,28 @@ try {
   throw error;
 }
 
+const homeLink = `http://localhost:3000`;
+
 const sendEmail = async (
   to: string,
   subject: string,
   template: string,
   context: { title: string; firstName?: string; link: string },
 ) => {
-  const rendered = await ejs.renderFile(`${__dirname}/templates/${template}.ejs`, {
+  const rendered = await ejs.renderFile(`${__dirname}/../views/${template}.ejs`, {
     ...context,
-    homeLink: '',
+    homeLink,
     logo: '',
     from: 'RecipeRevere Team',
+    link: `${homeLink}${context.link}`,
   });
 
   const options = {
-    from: `< RecipeRevere Team ${EMAIL_USER}>`,
+    from: `RecipeRevere Team: <${EMAIL_USER}>`,
     to,
     subject,
     html: rendered,
-    text: htmlToText.convert(rendered),
+    text: convert(rendered),
   };
 
   try {

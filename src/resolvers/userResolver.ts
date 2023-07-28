@@ -4,6 +4,9 @@ import jwt from 'jsonwebtoken';
 import User, { IUserType } from '../models/user.js';
 import authWrapper from '../utils/auth.js';
 import { setValue } from '../db/redisConnection.js';
+import Token from '../models/token.js';
+import sendEmail from '../api/email.js';
+import crypto from 'crypto';
 
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 
@@ -16,6 +19,8 @@ interface IUserInput {
   password: string;
   passwordConfirm?: string;
 }
+
+const generateToken = () => crypto.randomBytes(32).toString('hex');
 
 const USERS_PER_PAGE = 10;
 
@@ -72,7 +77,16 @@ const userResolver = {
       });
     }
 
-    await User.create({ email, password });
+    const user = await User.create({ email, password });
+
+    const token = generateToken();
+
+    await Token.create({ userId: user._id, token });
+
+    await sendEmail(email, 'Activate your account', 'verification', {
+      link: `/users/activate/${token}`,
+      title: 'Activate your account',
+    });
 
     return true;
   },
@@ -220,6 +234,8 @@ const userResolver = {
       return true;
     },
   ),
+  forgetPassword: async () => {},
+  resetPassword: async () => {},
 };
 
 export default userResolver;

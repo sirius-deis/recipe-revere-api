@@ -22,7 +22,7 @@ const tokenSchema = new Schema<IToken, ITokenModel>({
   createdAt: {
     type: Date,
     default: Date.now(),
-    expires: 60 * 60 * 24 * 3,
+    expires: 60 * 60 * 24 * 7,
     validate: {
       validator: function (v: number) {
         return v < Date.now();

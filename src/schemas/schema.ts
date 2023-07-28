@@ -81,7 +81,6 @@ const typeDefs = gql`
     logout: Boolean
     getRecipes(query: String!, page: Int): [Recipe]
     getRecipe(id: String!): Recipe
-    activate: String
   }
 `;
 
