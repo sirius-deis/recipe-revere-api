@@ -47,6 +47,15 @@ const verifyToken = async ({ req, res }: { req: Request; res: Response }) => {
     });
   }
 
+  if ((payload as JwtExpPayload).iat * 1000 < user.passwordChangedAt) {
+    throw new GraphQLError('Pleas login again', {
+      extensions: {
+        code: 'TOKEN VERIFICATION FAILED',
+        http: { status: 401 },
+      },
+    });
+  }
+
   const exp = (payload as JwtExpPayload).exp;
   return { user, exp, token, res };
 };
