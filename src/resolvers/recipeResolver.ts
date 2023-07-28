@@ -96,7 +96,6 @@ const recipeResolver = {
       const recipesFromRedis = await getValue(`recipes_pages_q:${query}`);
 
       if (recipesFromRedis && recipesFromRedis[page.toString()]) {
-        console.log('REDIS');
         return extractRecipesFromObject(recipesFromRedis[page.toString()].hits);
       }
 

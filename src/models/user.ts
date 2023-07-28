@@ -8,7 +8,7 @@ enum Roles {
   Admin = 'admin',
 }
 
-export interface IUser {
+interface IUser {
   _id: Types.ObjectId;
   name: string;
   email: string;
@@ -20,12 +20,12 @@ export interface IUser {
   pictures: [string];
 }
 
-export interface IUserMethods {
+interface IUserMethods {
   comparePasswords: (assumedPassword: string) => Promise<boolean>;
   save: () => Promise<IUser | never>;
 }
 
-export type IUserModal = Model<IUser, {}, IUserMethods>;
+type IUserModal = Model<IUser, {}, IUserMethods>;
 
 export type IUserType = IUser & IUserMethods & IUserModal;
 
