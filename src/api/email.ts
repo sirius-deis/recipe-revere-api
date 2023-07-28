@@ -31,12 +31,14 @@ const sendEmail = async (
   template: string,
   context: { title: string; firstName?: string; link: string },
 ) => {
-  const rendered = await ejs.renderFile(`${__dirname}/../views/${template}.ejs`, {
+  const rendered = await ejs.renderFile(`${__dirname}/../views/root.ejs`, {
     ...context,
     homeLink,
     logo: '',
     from: 'RecipeRevere Team',
     link: `${homeLink}${context.link}`,
+    firstName: context.firstName || to,
+    template: 'welcome',
   });
 
   const options = {
