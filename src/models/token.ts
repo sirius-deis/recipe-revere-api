@@ -1,14 +1,15 @@
-import { Schema, model, Model, Types } from 'mongoose';
+import { Schema, model, Model } from 'mongoose';
 
-interface IResetToken {
+interface IToken {
+  id: string;
   userId: string;
   token: string;
   createdAt: { type: Date; validate: {} };
 }
 
-type IResetTokenModel = Model<IResetToken, {}>;
+type ITokenModel = Model<IToken, {}>;
 
-const resetTokenSchema = new Schema<IResetToken, IResetTokenModel>({
+const tokenSchema = new Schema<IToken, ITokenModel>({
   userId: {
     type: String,
     ref: 'User',
@@ -21,6 +22,7 @@ const resetTokenSchema = new Schema<IResetToken, IResetTokenModel>({
   createdAt: {
     type: Date,
     default: Date.now(),
+    expires: 60 * 60 * 24 * 3,
     validate: {
       validator: function (v: number) {
         return v < Date.now();
@@ -30,6 +32,6 @@ const resetTokenSchema = new Schema<IResetToken, IResetTokenModel>({
   },
 });
 
-const ResetToken = model<IResetToken>('ResetToken', resetTokenSchema);
+const Token = model<IToken>('Token', tokenSchema);
 
-export default ResetToken;
+export default Token;
