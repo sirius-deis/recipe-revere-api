@@ -3,6 +3,7 @@ import axios from 'axios';
 import authWrapper from '../utils/auth.js';
 import { setValue, getValue } from '../db/redisConnection.js';
 import { IUserType } from '../models/user.js';
+import RecipeReview from '../models/recipeReview.js';
 
 const { EDAMAM_APPLICATION_ID, EDAMAM_APPLICATION_KEY } = process.env;
 
@@ -163,8 +164,10 @@ const recipeResolver = {
     await setValue(`recipe-${recipeFromResponse.url}`, recipeFromResponse);
     return recipeFromResponse;
   }),
-  rateRecipe: authWrapper(async (_: any, args: { id: string }, { user: IUserType }) => {}),
-  removeRatingRecipe: authWrapper(async (_: any, args: { id: string }, { user: IUserType }) => {}),
+  reviewRecipe: authWrapper(async (_: any, args: { id: string }, { user: IUserType }) => {}),
+  removeReviewFromRecipe: authWrapper(
+    async (_: any, args: { id: string }, { user: IUserType }) => {},
+  ),
 };
 
 export default recipeResolver;

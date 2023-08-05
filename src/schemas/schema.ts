@@ -43,6 +43,11 @@ const typeDefs = gql`
     newPasswordConfirm: String!
   }
 
+  input reviewInput {
+    review: String
+    rating: Int
+  }
+
   type Mutation {
     register(input: userInput!): Boolean
     login(input: userInput!): UserWithToken
@@ -51,6 +56,8 @@ const typeDefs = gql`
     updateInfo(input: userInfoInput!): Boolean
     forgetPassword(input: userEmail!): String
     resetPassword(input: resetPasswordInput!): String
+    reviewRecipe(input: reviewInput): Boolean
+    removeReviewFromRecipe(reviewId): Boolean
   }
 
   type UsersWithAmount {
