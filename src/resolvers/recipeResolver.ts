@@ -164,7 +164,30 @@ const recipeResolver = {
     await setValue(`recipe-${recipeFromResponse.url}`, recipeFromResponse);
     return recipeFromResponse;
   }),
-  reviewRecipe: authWrapper(async (_: any, args: { id: string }, { user: IUserType }) => {}),
+  reviewRecipe: authWrapper(
+    async (_: any, args: { id: string; review: string; rating: number }, { user: IUserType }) => {
+      const { id, review, rating } = args;
+      const recipeFromRedis = await getValue(`recipe-${id}`);
+      if (!recipeFromRedis) {
+        const response = await axios.get(`urlSingle`, { params: { uri: `${uri}${id}` } });
+        const data = response.data;
+        if (data.hits.length < 1) {
+          throw new GraphQLError('Recipe with provide id does not exist', {
+            extensions: {
+              code: 'NOT_FOUND',
+            },
+          });
+        } else {
+          const recipeFromResponse = data.hits[0].recipe;
+          await setValue(`recipe-${recipeFromResponse.url}`, recipeFromResponse);
+        }
+      }
+
+      await RecipeReview.create({ recipeId: id, review, rating });
+
+      return true;
+    },
+  ),
   removeReviewFromRecipe: authWrapper(
     async (_: any, args: { id: string }, { user: IUserType }) => {},
   ),
