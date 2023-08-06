@@ -49,6 +49,13 @@ const extractRecipesFromObject = (recipes: [{ recipe: Recipe }]) => {
   return recipes.map((hit: { recipe: Recipe }) => hit.recipe);
 };
 
+const findAverageRating = (recipeId: string) => {
+  const averageRating = RecipeReview.aggregate([
+    { $group: { _id: recipeId, averageRating: { $avg: '$rating' } } },
+  ]);
+  return averageRating;
+};
+
 const fetchRecipesToPage = async (
   currentCursor: number,
   page: number,
