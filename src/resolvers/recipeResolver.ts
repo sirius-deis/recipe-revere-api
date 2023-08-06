@@ -165,7 +165,11 @@ const recipeResolver = {
     return recipeFromResponse;
   }),
   reviewRecipe: authWrapper(
-    async (_: any, args: { id: string; review: string; rating: number }, { user: IUserType }) => {
+    async (
+      _: any,
+      args: { id: string; review: string; rating: number },
+      { user }: { user: IUserType },
+    ) => {
       const { id, review, rating } = args;
       const recipeFromRedis = await getValue(`recipe-${id}`);
       if (!recipeFromRedis) {
@@ -183,13 +187,13 @@ const recipeResolver = {
         }
       }
 
-      await RecipeReview.create({ recipeId: id, review, rating });
+      await RecipeReview.create({ recipeId: id, userId: user._id, review, rating });
 
       return true;
     },
   ),
   removeReviewFromRecipe: authWrapper(
-    async (_: any, args: { id: string }, { user: IUserType }) => {},
+    async (_: any, args: { id: string }, { user }: { user: IUserType }) => {},
   ),
 };
 
