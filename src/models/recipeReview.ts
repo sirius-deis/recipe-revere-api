@@ -1,7 +1,7 @@
 import { Schema, Model, model } from 'mongoose';
 
 interface IRecipeReview {
-  id: string;
+  _id: string;
   recipeId: string;
   userId: string;
   rating: number;

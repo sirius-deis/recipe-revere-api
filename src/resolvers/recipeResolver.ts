@@ -193,7 +193,23 @@ const recipeResolver = {
     },
   ),
   removeReviewFromRecipe: authWrapper(
-    async (_: any, args: { id: string }, { user }: { user: IUserType }) => {},
+    async (_: any, args: { id: string }, { user }: { user: IUserType }) => {
+      const { id: reviewId } = args;
+
+      const review = await RecipeReview.findOne({ _id: reviewId, userId: user._id });
+
+      if (!review) {
+        throw new GraphQLError('Recipe with provide id does not exist', {
+          extensions: {
+            code: 'NOT_FOUND',
+          },
+        });
+      }
+
+      await review.deleteOne();
+
+      return true;
+    },
   ),
 };
 
