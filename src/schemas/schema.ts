@@ -66,7 +66,7 @@ const typeDefs = gql`
   }
 
   type Recipe {
-    url: String
+    url: String!
     label: String
     image: String
     source: String
@@ -82,12 +82,24 @@ const typeDefs = gql`
     dishType: [String]
   }
 
+  type Review {
+    _id: String!
+    userId: String!
+    review: String
+    rating: Number!
+  }
+
+  type RecipeWithReviews {
+    recipe: Recipe!
+    reviews: [Review]
+  }
+
   type Query {
     getUser(userId: String!): User
     getUsers(page: Int): UsersWithAmount
     logout: Boolean
     getRecipes(query: String!, page: Int): [Recipe]
-    getRecipe(id: String!): Recipe
+    getRecipe(id: String!): RecipeWithReviews
   }
 `;
 
