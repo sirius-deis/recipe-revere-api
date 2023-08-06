@@ -89,9 +89,10 @@ const typeDefs = gql`
     rating: Number!
   }
 
-  type RecipeWithReviews {
+  type RecipeWithReviewsAndAvgRating {
     recipe: Recipe!
     reviews: [Review]
+    averageRating: Int
   }
 
   type Query {

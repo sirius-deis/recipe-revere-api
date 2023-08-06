@@ -158,8 +158,8 @@ const recipeResolver = {
     const { id } = args;
     const recipeFromRedis = await getValue(`recipe-${id}`);
     if (recipeFromRedis) {
-      const reviews = await findReviews(id);
-      return { recipe: recipeFromRedis, reviews };
+      const [reviews, averageRating] = await Promise.all([findReviews(id), findAverageRating(id)]);
+      return { recipe: recipeFromRedis, reviews, averageRating };
     }
     const response = await axios.get(urlSingle, { params: { uri: `${uri}${id}` } });
     const data = response.data;
@@ -171,9 +171,9 @@ const recipeResolver = {
       });
     }
     const recipeFromResponse = data.hits[0].recipe;
-    const reviews = await findReviews(id);
+    const [reviews, averageRating] = await Promise.all([findReviews(id), findAverageRating(id)]);
     await setValue(`recipe-${recipeFromResponse.url}`, recipeFromResponse);
-    return { recipe: recipeFromResponse, reviews };
+    return { recipe: recipeFromResponse, reviews, averageRating };
   }),
   reviewRecipe: authWrapper(
     async (
