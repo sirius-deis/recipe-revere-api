@@ -4,6 +4,7 @@ import authWrapper from '../utils/auth.js';
 import { setValue, getValue } from '../db/redisConnection.js';
 import { IUserType } from '../models/user.js';
 import RecipeReview from '../models/recipeReview.js';
+import { Aggregate } from 'mongoose';
 
 const { EDAMAM_APPLICATION_ID, EDAMAM_APPLICATION_KEY } = process.env;
 
@@ -49,7 +50,7 @@ const extractRecipesFromObject = (recipes: [{ recipe: Recipe }]) => {
   return recipes.map((hit: { recipe: Recipe }) => hit.recipe);
 };
 
-const findAverageRating = (recipeId: string) => {
+const findAverageRating = async (recipeId: string): Promise<Aggregate<any>> => {
   const averageRating = RecipeReview.aggregate([
     { $group: { _id: recipeId, averageRating: { $avg: '$rating' } } },
   ]);
@@ -96,8 +97,9 @@ const extractIdsFromRecipes = (recipes: Recipe[]): string[] => {
 };
 
 //TODO: finish a function
-const getAverageRatingForAllRecipes = (recipes: Recipe[]) => {
+const getAverageRatingForAllRecipes = async (recipes: Recipe[]) => {
   const recipesId = extractIdsFromRecipes(recipes);
+  const avgRating = await Promise.all(recipesId.map((id) => findAverageRating(id)));
 };
 
 const recipeResolver = {
