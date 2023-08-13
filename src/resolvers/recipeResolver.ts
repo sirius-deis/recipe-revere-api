@@ -44,6 +44,7 @@ interface Recipe {
   cuisineType: [string];
   mealType: [string];
   dishType: [string];
+  avgRating?: number;
 }
 
 const extractRecipesFromObject = (recipes: [{ recipe: Recipe }]) => {
@@ -97,9 +98,13 @@ const extractIdsFromRecipes = (recipes: Recipe[]): string[] => {
 };
 
 //TODO: finish a function
-const getAverageRatingForAllRecipes = async (recipes: Recipe[]) => {
+const getAverageRatingForAllRecipes = async (recipes: Recipe[]): Promise<void> => {
   const recipesId = extractIdsFromRecipes(recipes);
   const avgRating = await Promise.all(recipesId.map((id) => findAverageRating(id)));
+
+  for (let i = 0; i < recipes.length; i++) {
+    recipes[i].avgRating = avgRating[i];
+  }
 };
 
 const recipeResolver = {
