@@ -91,8 +91,14 @@ const fetchRecipesToPage = async (
 
 const findReviews = async (recipeId: string) => await RecipeReview.find({ recipeId });
 
+const extractIdsFromRecipes = (recipes: Recipe[]): string[] => {
+  return recipes.map((recipe) => recipe.url.replace(uri, ''));
+};
+
 //TODO: finish a function
-const getAverageRatingForAllRecipes = (recipes: [Recipe]) => {};
+const getAverageRatingForAllRecipes = (recipes: Recipe[]) => {
+  const recipesId = extractIdsFromRecipes(recipes);
+};
 
 const recipeResolver = {
   getRecipes: authWrapper(
