@@ -91,6 +91,9 @@ const fetchRecipesToPage = async (
 
 const findReviews = async (recipeId: string) => await RecipeReview.find({ recipeId });
 
+//TODO: finish a function
+const getAverageRatingForAllRecipes = (recipes: [Recipe]) => {};
+
 const recipeResolver = {
   getRecipes: authWrapper(
     async (_: any, args: { query: string; page: number; size: number }, __: any) => {
@@ -184,7 +187,7 @@ const recipeResolver = {
       const { id, review, rating } = args;
       const recipeFromRedis = await getValue(`recipe-${id}`);
       if (!recipeFromRedis) {
-        const response = await axios.get(`urlSingle`, { params: { uri: `${uri}${id}` } });
+        const response = await axios.get(urlSingle, { params: { uri: `${uri}${id}` } });
         const data = response.data;
         if (data.hits.length < 1) {
           throw new GraphQLError('Recipe with provide id does not exist', {
