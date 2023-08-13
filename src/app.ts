@@ -1,10 +1,13 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
+import userRouter from './routes/user.routes';
+import errorHandler from './controllers/error.controllers';
+import AppError from './utils/appError';
 
 const app = express();
 
@@ -33,5 +36,13 @@ app.use(
 app.use(mongoSanitize());
 app.use(limiter);
 app.use(cookieParser());
+
+app.use('/users/', userRouter);
+
+app.all('*', (req: Request, res: Response, next: NextFunction) => {
+  return next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
+});
+
+app.use(errorHandler);
 
 export default app;
