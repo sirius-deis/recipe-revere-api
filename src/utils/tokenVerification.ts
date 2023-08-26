@@ -14,17 +14,24 @@ interface JwtExpPayload {
   exp: number;
 }
 
-const verifyToken = async ({ req, res }: { req: Request; res: Response }) => {
+const verifyToken = async ({
+  req,
+  res,
+}: {
+  req: Request;
+  res: Response;
+}): Promise<{ user?: any; res: Response; token?: string; iat?: number; exp?: number }> => {
   const match = req.headers.authorization?.match(/^Bearer (.*)$/);
   if (!match) {
-    return {};
+    return { res };
   }
   const token = match[1];
+
   let payload;
   try {
     payload = jwt.verify(token, JWT_SECRET!);
   } catch (error) {
-    return {};
+    return { res };
   }
 
   const user = await User.findById((payload as UserPayload).userId);
@@ -38,7 +45,7 @@ const verifyToken = async ({ req, res }: { req: Request; res: Response }) => {
     });
   }
 
-  if (!user.isBlocked) {
+  if (user.isBlocked) {
     throw new GraphQLError('You was blocked', {
       extensions: {
         code: 'AUTHENTICATION_FAILED',

@@ -78,9 +78,9 @@ const typeDefs = gql`
     healthLabels: [String]
     cautions: [String]
     ingredientLines: [String]
-    calories: Int
-    totalWeight: Int
-    totalTime: Int
+    calories: Float
+    totalWeight: Float
+    totalTime: Float
     cuisineType: [String]
     mealType: [String]
     dishType: [String]

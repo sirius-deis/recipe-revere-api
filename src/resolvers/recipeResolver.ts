@@ -69,7 +69,7 @@ const fetchRecipesToPage = async (
   let count = currentCursor;
 
   while (count > 0) {
-    if (recipesFromRedis[count.toString()]) {
+    if (recipesFromRedis && recipesFromRedis[count.toString()]) {
       nextLink = recipesFromRedis[count.toString()].next;
       count++;
       break;
@@ -78,7 +78,6 @@ const fetchRecipesToPage = async (
   }
 
   count ||= 1;
-
   while (count < page) {
     const tempResponse = await axios.get(nextLink);
     const data = tempResponse.data;

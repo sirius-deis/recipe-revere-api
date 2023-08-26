@@ -93,7 +93,6 @@ const userResolver = {
   login: async (_: any, { input }: { input: IUserInput }, context: { res: Response }) => {
     const { email, password } = input;
     const user = await User.findOne({ email });
-
     if (!user) {
       throw new GraphQLError('There is no such user', {
         extensions: {
