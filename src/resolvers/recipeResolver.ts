@@ -97,13 +97,15 @@ const extractIdsFromRecipes = (recipes: Recipe[]): string[] => {
 };
 
 //TODO: finish the function
-const attachAverageRatingForAllRecipes = async (recipes: Recipe[]): Promise<void> => {
+const attachAverageRatingForAllRecipes = async (recipes: Recipe[]): Promise<Recipe[]> => {
   const recipesId = extractIdsFromRecipes(recipes);
   const avgRating = await Promise.all(recipesId.map((id) => findAverageRating(id)));
 
   for (let i = 0; i < recipes.length; i++) {
     recipes[i].avgRating = avgRating[i];
   }
+
+  return recipes;
 };
 
 const recipeResolver = {
@@ -122,7 +124,9 @@ const recipeResolver = {
       const recipesFromRedis = await getValue(`recipes_pages_q:${query}`);
 
       if (recipesFromRedis && recipesFromRedis[page.toString()]) {
-        return extractRecipesFromObject(recipesFromRedis[page.toString()].hits);
+        return attachAverageRatingForAllRecipes(
+          extractRecipesFromObject(recipesFromRedis[page.toString()].hits),
+        );
       }
 
       let response;
@@ -166,7 +170,7 @@ const recipeResolver = {
         [page.toString()]: { hits: data.hits, next: data._links.next.href },
       });
 
-      return extractRecipesFromObject(data.hits);
+      return attachAverageRatingForAllRecipes(extractRecipesFromObject(data.hits));
     },
   ),
   getRecipe: authWrapper(async (_: any, args: { id: string }, __: any) => {
