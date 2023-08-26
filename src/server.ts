@@ -3,6 +3,9 @@ import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
 import http from 'http';
+import { Request, Response, NextFunction } from 'express';
+import errorHandler from './controllers/error.controllers.js';
+import AppError from './utils/appError.js';
 import typeDefs from './schemas/schema.js';
 import resolvers from './resolvers/resolver.js';
 import connect from './db/connection.js';
@@ -34,6 +37,12 @@ app.use(
     context: verifyToken,
   }),
 );
+
+app.all('*', (req: Request, res: Response, next: NextFunction) => {
+  return next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
+});
+
+app.use(errorHandler);
 
 const start = async () => {
   await connect();
