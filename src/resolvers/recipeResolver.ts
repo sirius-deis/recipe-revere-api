@@ -97,8 +97,8 @@ const extractIdsFromRecipes = (recipes: Recipe[]): string[] => {
   return recipes.map((recipe) => recipe.url.replace(uri, ''));
 };
 
-//TODO: finish a function
-const getAverageRatingForAllRecipes = async (recipes: Recipe[]): Promise<void> => {
+//TODO: finish the function
+const attachAverageRatingForAllRecipes = async (recipes: Recipe[]): Promise<void> => {
   const recipesId = extractIdsFromRecipes(recipes);
   const avgRating = await Promise.all(recipesId.map((id) => findAverageRating(id)));
 

@@ -5,9 +5,9 @@ import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
-import userRouter from './routes/user.routes';
-import errorHandler from './controllers/error.controllers';
-import AppError from './utils/appError';
+import userRouter from './routes/user.routes.js';
+import errorHandler from './controllers/error.controllers.js';
+import AppError from './utils/appError.js';
 
 const app = express();
 

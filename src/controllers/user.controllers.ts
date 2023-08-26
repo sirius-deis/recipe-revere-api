@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import catchAsync from 'src/utils/catchAsync';
-import Token from 'src/models/token';
-import AppError from 'src/utils/appError';
-import User from 'src/models/user';
+import catchAsync from '../utils/catchAsync.js';
+import Token from '../models/token.js';
+import AppError from '../utils/appError.js';
+import User from '../models/user.js';
 
 export const activateAccount = catchAsync(
   async (req: Request, res: Response, next: NextFunction): Promise<void | NextFunction> => {
