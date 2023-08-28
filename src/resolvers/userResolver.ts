@@ -10,8 +10,8 @@ import crypto from 'crypto';
 
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 
-const signToken = (userId: string) => {
-  return jwt.sign({ userId }, JWT_SECRET!, { expiresIn: JWT_EXPIRES_IN });
+const signToken = (userId: string, expiresIn: string = JWT_EXPIRES_IN!) => {
+  return jwt.sign({ userId }, JWT_SECRET!, { expiresIn });
 };
 
 interface IUserInput {
@@ -92,6 +92,7 @@ const userResolver = {
   },
   login: async (_: any, { input }: { input: IUserInput }, context: { res: Response }) => {
     const { email, password } = input;
+    const { res } = context;
     const user = await User.findOne({ email });
     if (!user) {
       throw new GraphQLError('There is no such user', {
@@ -119,8 +120,8 @@ const userResolver = {
 
     const token = signToken(user._id.toString());
 
-    //TODO: add refresh token
-    context.res.cookie('refresh-token', 'refresh');
+    const refreshToken = signToken(user._id.toString(), '90d');
+    res.cookie('refresh-token', refreshToken);
 
     return {
       user: {
@@ -134,8 +135,12 @@ const userResolver = {
     };
   },
   delete: authWrapper(
-    async (_: any, { input }: { input: { password: string } }, context: { user: IUserType }) => {
-      const { user } = context;
+    async (
+      _: any,
+      { input }: { input: { password: string } },
+      context: { user: IUserType; res: Response },
+    ) => {
+      const { user, res } = context;
 
       const { password } = input;
 
@@ -148,6 +153,8 @@ const userResolver = {
       }
 
       await user.deleteOne();
+
+      res.clearCookie('refresh-token');
 
       return true;
     },
