@@ -27,3 +27,9 @@ export const activateAccount = catchAsync(
     res.status(200).json({ message: 'Your account was activated successfully' });
   },
 );
+
+export const resetPassword = catchAsync(
+  async (req: Request, res: Response, next: NextFunction): Promise<void | NextFunction> => {
+    //TODO:
+  },
+);

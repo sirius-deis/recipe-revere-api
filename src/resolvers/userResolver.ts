@@ -240,7 +240,30 @@ const userResolver = {
       return true;
     },
   ),
-  forgetPassword: async () => {},
+  forgetPassword: async (_: any, { input }: { input: { email: string } }, __: any) => {
+    const { email } = input;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw new GraphQLError('There is no such email', {
+        extensions: {
+          code: 'NOT_FOUND',
+        },
+      });
+    }
+
+    const token = generateToken();
+
+    await Token.create({ userId: user._id, token });
+
+    await sendEmail(email, 'Reset your password', 'reset', {
+      link: `/users/reset-password/${token}`,
+      title: 'Activate your account',
+    });
+
+    return 'Check your email to reset your password';
+  },
   resetPassword: async () => {},
 };
 
