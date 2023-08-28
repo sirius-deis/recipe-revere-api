@@ -264,7 +264,6 @@ const userResolver = {
 
     return 'Check your email to reset your password';
   },
-  resetPassword: async () => {},
 };
 
 export default userResolver;
