@@ -249,6 +249,16 @@ const recipeResolver = {
       return true;
     },
   ),
+  changeReview: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { reviewId: string; review: string; rating: number } },
+      { user }: { user: IUserType },
+    ) => {
+      const { reviewId, review, rating } = input;
+      return true;
+    },
+  ),
 };
 
 export default recipeResolver;
