@@ -52,10 +52,10 @@ const extractRecipesFromObject = (recipes: [{ recipe: Recipe }]) => {
 };
 
 const findAverageRating = async (recipeId: string): Promise<Aggregate<any>> => {
-  const averageRating = RecipeReview.aggregate([
+  const averageRating = await RecipeReview.aggregate([
     { $group: { _id: recipeId, averageRating: { $avg: '$rating' } } },
   ]);
-  return averageRating;
+  return averageRating[0].averageRating;
 };
 
 const fetchRecipesToPage = async (
@@ -197,13 +197,13 @@ const recipeResolver = {
   reviewRecipe: authWrapper(
     async (
       _: any,
-      args: { id: string; review: string; rating: number },
+      { input }: { input: { recipeId: string; review: string; rating: number } },
       { user }: { user: IUserType },
     ) => {
-      const { id, review, rating } = args;
-      const recipeFromRedis = await getValue(`recipe-${id}`);
+      const { recipeId, review, rating } = input;
+      const recipeFromRedis = await getValue(`recipe-${recipeId}`);
       if (!recipeFromRedis) {
-        const response = await axios.get(urlSingle, { params: { uri: `${uri}${id}` } });
+        const response = await axios.get(urlSingle, { params: { uri: `${uri}${recipeId}` } });
         const data = response.data;
         if (data.hits.length < 1) {
           throw new GraphQLError('Recipe with provide id does not exist', {
@@ -217,7 +217,7 @@ const recipeResolver = {
         }
       }
 
-      await RecipeReview.create({ recipeId: id, userId: user._id, review, rating });
+      await RecipeReview.create({ recipeId, userId: user._id, review, rating });
 
       return true;
     },

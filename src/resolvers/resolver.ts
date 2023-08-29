@@ -15,6 +15,9 @@ const resolvers = {
     delete: userResolver.delete,
     updatePassword: userResolver.updatePassword,
     updateInfo: userResolver.updateInfo,
+    forgetPassword: userResolver.forgetPassword,
+    reviewRecipe: recipeResolver.reviewRecipe,
+    removeReviewFromRecipe: recipeResolver.removeReviewFromRecipe,
   },
 };
 

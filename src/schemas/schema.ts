@@ -44,12 +44,13 @@ const typeDefs = gql`
   }
 
   input reviewInput {
+    recipeId: String!
     review: String
-    rating: Int
+    rating: Int!
   }
 
   input reviewId {
-    id: String
+    id: String!
   }
 
   type Mutation {
@@ -59,7 +60,6 @@ const typeDefs = gql`
     updatePassword(input: updatePasswordInput!): String
     updateInfo(input: userInfoInput!): Boolean
     forgetPassword(input: userEmail!): String
-    resetPassword(input: resetPasswordInput!): String
     reviewRecipe(input: reviewInput): Boolean
     removeReviewFromRecipe(input: reviewId): Boolean
   }
