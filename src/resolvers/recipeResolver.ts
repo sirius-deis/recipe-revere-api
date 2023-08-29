@@ -45,17 +45,18 @@ interface Recipe {
   mealType: [string];
   dishType: [string];
   avgRating?: number;
+  amountOfReviews?: number;
 }
 
 const extractRecipesFromObject = (recipes: [{ recipe: Recipe }]) => {
   return recipes.map((hit: { recipe: Recipe }) => hit.recipe);
 };
 
-const findAverageRating = async (recipeId: string): Promise<Aggregate<any>> => {
-  const averageRating = await RecipeReview.aggregate([
-    { $group: { _id: recipeId, averageRating: { $avg: '$rating' } } },
+const findAverageRatingAndAmount = async (recipeId: string): Promise<[number, number]> => {
+  const result = await RecipeReview.aggregate([
+    { $group: { _id: recipeId, averageRating: { $avg: '$rating' }, amountOfReviews: { $sum: 1 } } },
   ]);
-  return averageRating[0].averageRating;
+  return [result[0].averageRating, result[0].amountOfReviews];
 };
 
 const fetchRecipesToPage = async (
@@ -99,10 +100,11 @@ const extractIdsFromRecipes = (recipes: Recipe[]): string[] => {
 //TODO: finish the function
 const attachAverageRatingForAllRecipes = async (recipes: Recipe[]): Promise<Recipe[]> => {
   const recipesId = extractIdsFromRecipes(recipes);
-  const avgRating = await Promise.all(recipesId.map((id) => findAverageRating(id)));
+  const avgRating = await Promise.all(recipesId.map((id) => findAverageRatingAndAmount(id)));
 
   for (let i = 0; i < recipes.length; i++) {
-    recipes[i].avgRating = avgRating[i];
+    recipes[i].avgRating = avgRating[i][0];
+    recipes[i].amountOfReviews = avgRating[i][1];
   }
 
   return recipes;
@@ -177,8 +179,11 @@ const recipeResolver = {
     const { id } = args;
     const recipeFromRedis = await getValue(`recipe-${id}`);
     if (recipeFromRedis) {
-      const [reviews, averageRating] = await Promise.all([findReviews(id), findAverageRating(id)]);
-      return { recipe: recipeFromRedis, reviews, averageRating };
+      const [reviews, [averageRating, amountOfReviews]] = await Promise.all([
+        findReviews(id),
+        findAverageRatingAndAmount(id),
+      ]);
+      return { recipe: recipeFromRedis, reviews, averageRating, amountOfReviews };
     }
     const response = await axios.get(urlSingle, { params: { uri: `${uri}${id}` } });
     const data = response.data;
@@ -190,9 +195,12 @@ const recipeResolver = {
       });
     }
     const recipeFromResponse = data.hits[0].recipe;
-    const [reviews, averageRating] = await Promise.all([findReviews(id), findAverageRating(id)]);
+    const [reviews, [averageRating, amountOfReviews]] = await Promise.all([
+      findReviews(id),
+      findAverageRatingAndAmount(id),
+    ]);
     await setValue(`recipe-${recipeFromResponse.url}`, recipeFromResponse);
-    return { recipe: recipeFromResponse, reviews, averageRating };
+    return { recipe: recipeFromResponse, reviews, averageRating, amountOfReviews };
   }),
   reviewRecipe: authWrapper(
     async (

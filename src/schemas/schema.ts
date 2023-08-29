@@ -93,10 +93,11 @@ const typeDefs = gql`
     rating: Int!
   }
 
-  type RecipeWithReviewsAndAvgRating {
+  type RecipeWithReviews {
     recipe: Recipe!
     reviews: [Review]
-    averageRating: Int
+    averageRating: Float
+    amountOfReviews: Int
   }
 
   type Query {
