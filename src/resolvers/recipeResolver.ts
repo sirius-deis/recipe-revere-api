@@ -244,6 +244,14 @@ const recipeResolver = {
         });
       }
 
+      if (!user._id.equals(review.userId)) {
+        throw new GraphQLError("You can't change review that are not your", {
+          extensions: {
+            code: 'FORBIDDEN',
+          },
+        });
+      }
+
       await review.deleteOne();
 
       return true;
@@ -262,6 +270,14 @@ const recipeResolver = {
         throw new GraphQLError('Recipe with provide id does not exist', {
           extensions: {
             code: 'NOT_FOUND',
+          },
+        });
+      }
+
+      if (!user._id.equals(review.userId)) {
+        throw new GraphQLError("You can't change review that are not your", {
+          extensions: {
+            code: 'FORBIDDEN',
           },
         });
       }
