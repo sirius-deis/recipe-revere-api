@@ -18,6 +18,7 @@ const resolvers = {
     forgetPassword: userResolver.forgetPassword,
     reviewRecipe: recipeResolver.reviewRecipe,
     removeReviewFromRecipe: recipeResolver.removeReviewFromRecipe,
+    changeReview: recipeResolver.changeReview,
   },
 };
 
