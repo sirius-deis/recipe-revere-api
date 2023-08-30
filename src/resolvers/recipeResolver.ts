@@ -234,8 +234,8 @@ const recipeResolver = {
     },
   ),
   removeReviewFromRecipe: authWrapper(
-    async (_: any, args: { id: string }, { user }: { user: IUserType }) => {
-      const { id: reviewId } = args;
+    async (_: any, { input }: { input: { id: string } }, { user }: { user: IUserType }) => {
+      const { id: reviewId } = input;
 
       const review = await RecipeReview.findOne({ _id: reviewId, userId: user._id });
 
