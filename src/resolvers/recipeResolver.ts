@@ -299,9 +299,25 @@ const recipeResolver = {
       }
 
       if (reviewText) {
+        if (reviewText.trim().length < 1) {
+          throw new GraphQLError('Review should contain at least one character', {
+            extensions: {
+              code: 'INPUT_ERROR',
+              http: { status: 400 },
+            },
+          });
+        }
         review.review = reviewText;
       }
       if (rating) {
+        if (rating < 1 && rating > 5) {
+          throw new GraphQLError("Rating can't be less than 1 and grater than 5", {
+            extensions: {
+              code: 'INPUT_ERROR',
+              http: { status: 400 },
+            },
+          });
+        }
         review.rating = rating;
       }
 
