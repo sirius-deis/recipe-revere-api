@@ -205,10 +205,10 @@ const recipeResolver = {
   reviewRecipe: authWrapper(
     async (
       _: any,
-      { input }: { input: { recipeId: string; review: string; rating: number } },
+      { input }: { input: { recipeId: string; reviewInput: string; rating: number } },
       { user }: { user: IUserType },
     ) => {
-      const { recipeId, review, rating } = input;
+      const { recipeId, reviewInput, rating } = input;
       const recipeFromRedis = await getValue(`recipe-${recipeId}`);
       if (!recipeFromRedis) {
         const response = await axios.get(urlSingle, { params: { uri: `${uri}${recipeId}` } });
@@ -225,7 +225,7 @@ const recipeResolver = {
         }
       }
 
-      await RecipeReview.create({ recipeId, userId: user._id, review, rating });
+      await RecipeReview.create({ recipeId, userId: user._id, review: reviewInput, rating });
 
       return true;
     },
@@ -252,10 +252,20 @@ const recipeResolver = {
   changeReview: authWrapper(
     async (
       _: any,
-      { input }: { input: { reviewId: string; review: string; rating: number } },
+      { input }: { input: { reviewId: string; reviewText: string; rating: number } },
       { user }: { user: IUserType },
     ) => {
-      const { reviewId, review, rating } = input;
+      const { reviewId, reviewText, rating } = input;
+
+      const review = await RecipeReview.findById(reviewId);
+      if (!review) {
+        throw new GraphQLError('Recipe with provide id does not exist', {
+          extensions: {
+            code: 'NOT_FOUND',
+          },
+        });
+      }
+
       return true;
     },
   ),
