@@ -36,7 +36,16 @@ const verifyToken = async ({
 
   const user = await User.findById((payload as UserPayload).userId);
 
-  if (!user?.isActive) {
+  if (!user) {
+    throw new GraphQLError("Token verification failed. User wasn't found", {
+      extensions: {
+        code: 'NOT_FOUND',
+        http: { status: 404 },
+      },
+    });
+  }
+
+  if (!user.isActive) {
     throw new GraphQLError('Please activate account first', {
       extensions: {
         code: 'AUTHENTICATION_FAILED',

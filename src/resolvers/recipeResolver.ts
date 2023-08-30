@@ -97,7 +97,6 @@ const extractIdsFromRecipes = (recipes: Recipe[]): string[] => {
   return recipes.map((recipe) => recipe.url.replace(uri, ''));
 };
 
-//TODO: finish the function
 const attachAverageRatingForAllRecipes = async (recipes: Recipe[]): Promise<Recipe[]> => {
   const recipesId = extractIdsFromRecipes(recipes);
   const avgRating = await Promise.all(recipesId.map((id) => findAverageRatingAndAmount(id)));
@@ -281,6 +280,23 @@ const recipeResolver = {
           },
         });
       }
+
+      if (!reviewText && !rating) {
+        throw new GraphQLError('You need to provide at least one changed value', {
+          extensions: {
+            code: 'INPUT_ERROR',
+          },
+        });
+      }
+
+      if (reviewText) {
+        review.review = reviewText;
+      }
+      if (rating) {
+        review.rating = rating;
+      }
+
+      await review.save();
 
       return true;
     },
