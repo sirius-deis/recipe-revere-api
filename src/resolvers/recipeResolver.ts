@@ -118,6 +118,7 @@ const recipeResolver = {
         throw new GraphQLError("Page can't be zero or negative value", {
           extensions: {
             code: 'Range_Error',
+            http: { status: 400 },
           },
         });
       }
@@ -161,6 +162,7 @@ const recipeResolver = {
         throw new GraphQLError('There are no recipes left', {
           extensions: {
             code: 'NOT_FOUND',
+            http: { status: 404 },
           },
         });
       }
@@ -190,6 +192,7 @@ const recipeResolver = {
       throw new GraphQLError('Recipe with provide id does not exist', {
         extensions: {
           code: 'NOT_FOUND',
+          http: { status: 404 },
         },
       });
     }
@@ -216,6 +219,7 @@ const recipeResolver = {
           throw new GraphQLError('Recipe with provide id does not exist', {
             extensions: {
               code: 'NOT_FOUND',
+              http: { status: 404 },
             },
           });
         } else {
@@ -239,6 +243,7 @@ const recipeResolver = {
         throw new GraphQLError('Recipe with provide id does not exist', {
           extensions: {
             code: 'NOT_FOUND',
+            http: { status: 404 },
           },
         });
       }
@@ -247,6 +252,7 @@ const recipeResolver = {
         throw new GraphQLError("You can't change review that are not your", {
           extensions: {
             code: 'FORBIDDEN',
+            http: { status: 403 },
           },
         });
       }
@@ -269,6 +275,7 @@ const recipeResolver = {
         throw new GraphQLError('Recipe with provide id does not exist', {
           extensions: {
             code: 'NOT_FOUND',
+            http: { status: 404 },
           },
         });
       }
@@ -277,6 +284,7 @@ const recipeResolver = {
         throw new GraphQLError("You can't change review that are not your", {
           extensions: {
             code: 'FORBIDDEN',
+            http: { status: 403 },
           },
         });
       }
@@ -285,6 +293,7 @@ const recipeResolver = {
         throw new GraphQLError('You need to provide at least one changed value', {
           extensions: {
             code: 'INPUT_ERROR',
+            http: { status: 400 },
           },
         });
       }

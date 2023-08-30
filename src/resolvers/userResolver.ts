@@ -33,6 +33,7 @@ const userResolver = {
       throw new GraphQLError('There is no such user', {
         extensions: {
           code: 'NOT_FOUND',
+          http: { status: 404 },
         },
       });
     }
@@ -55,6 +56,7 @@ const userResolver = {
       throw new GraphQLError('There is no users left', {
         extensions: {
           code: 'NOT_FOUND',
+          http: { status: 404 },
         },
       });
     }
@@ -73,6 +75,7 @@ const userResolver = {
       throw new GraphQLError('Passwords are not the same', {
         extensions: {
           code: 'PASSWORD_ARE_NOT_THE_SAME',
+          http: { status: 401 },
         },
       });
     }
@@ -98,6 +101,7 @@ const userResolver = {
       throw new GraphQLError('There is no such user', {
         extensions: {
           code: 'NOT_FOUND',
+          http: { status: 404 },
         },
       });
     }
@@ -106,6 +110,7 @@ const userResolver = {
       throw new GraphQLError('Your account is not activated', {
         extensions: {
           code: 'AUTHENTICATION_FAILED',
+          http: { status: 401 },
         },
       });
     }
@@ -114,6 +119,7 @@ const userResolver = {
       throw new GraphQLError('Password is incorrect', {
         extensions: {
           code: 'AUTHENTICATION_FAILED',
+          http: { status: 401 },
         },
       });
     }
@@ -148,6 +154,7 @@ const userResolver = {
         throw new GraphQLError('Password is incorrect', {
           extensions: {
             code: 'AUTHENTICATION_FAILED',
+            http: { status: 401 },
           },
         });
       }
@@ -180,6 +187,7 @@ const userResolver = {
         throw new GraphQLError('Password is incorrect', {
           extensions: {
             code: 'AUTHENTICATION_FAILED',
+            http: { status: 401 },
           },
         });
       }
@@ -188,6 +196,7 @@ const userResolver = {
         throw new GraphQLError('Passwords are the same', {
           extensions: {
             code: 'PASSWORD_ARE_THE_SAME',
+            http: { status: 400 },
           },
         });
       }
@@ -196,6 +205,7 @@ const userResolver = {
         throw new GraphQLError('Passwords are not the same', {
           extensions: {
             code: 'PASSWORD_ARE_NOT_THE_SAME',
+            http: { status: 400 },
           },
         });
       }
@@ -218,6 +228,7 @@ const userResolver = {
         throw new GraphQLError("Name can't be shorter than 4 characters long", {
           extensions: {
             code: 'VALIDATION_ERROR',
+            http: { status: 400 },
           },
         });
       }
@@ -249,6 +260,7 @@ const userResolver = {
       throw new GraphQLError('There is no such email', {
         extensions: {
           code: 'NOT_FOUND',
+          http: { status: 404 },
         },
       });
     }
