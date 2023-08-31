@@ -1,9 +1,9 @@
-import { Schema, Model, model } from 'mongoose';
+import { Schema, Model, model, Types } from 'mongoose';
 
 interface IRecipeReview {
-  _id: string;
-  recipeId: string;
-  userId: string;
+  _id: Types.ObjectId;
+  recipeId: Types.ObjectId;
+  userId: Types.ObjectId;
   rating: number;
   review: string;
 }
@@ -12,11 +12,11 @@ type RecipeReviewModel = Model<IRecipeReview, {}>;
 
 const recipeReviewSchema = new Schema<IRecipeReview, RecipeReviewModel>({
   recipeId: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true,
   },
   userId: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true,
   },
   rating: {

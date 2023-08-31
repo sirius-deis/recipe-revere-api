@@ -4,7 +4,6 @@ import authWrapper from '../utils/auth.js';
 import { setValue, getValue } from '../db/redisConnection.js';
 import { IUserType } from '../models/user.js';
 import RecipeReview from '../models/recipeReview.js';
-import { Aggregate } from 'mongoose';
 
 const { EDAMAM_APPLICATION_ID, EDAMAM_APPLICATION_KEY } = process.env;
 
