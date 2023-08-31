@@ -211,6 +211,17 @@ const recipeResolver = {
       { user }: { user: IUserType },
     ) => {
       const { recipeId, reviewInput, rating } = input;
+
+      const review = await RecipeReview.findOne({ recipeId, userId: user._id });
+      if (review) {
+        throw new GraphQLError("You can't create more than one review for each recipe", {
+          extensions: {
+            code: 'INPUT_ERROR',
+            http: { status: 400 },
+          },
+        });
+      }
+
       const recipeFromRedis = await getValue(`recipe-${recipeId}`);
       if (!recipeFromRedis) {
         const response = await axios.get(urlSingle, { params: { uri: `${uri}${recipeId}` } });
