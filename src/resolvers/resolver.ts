@@ -19,6 +19,7 @@ const resolvers = {
     reviewRecipe: recipeResolver.reviewRecipe,
     removeReviewFromRecipe: recipeResolver.removeReviewFromRecipe,
     changeReview: recipeResolver.changeReview,
+    report: recipeResolver.report,
   },
 };
 
