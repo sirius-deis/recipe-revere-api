@@ -4,6 +4,7 @@ import authWrapper from '../utils/auth.js';
 import { setValue, getValue } from '../db/redisConnection.js';
 import { IUserType } from '../models/user.js';
 import RecipeReview from '../models/recipeReview.js';
+import Report from 'src/models/report.js';
 
 const { EDAMAM_APPLICATION_ID, EDAMAM_APPLICATION_KEY } = process.env;
 
@@ -332,6 +333,48 @@ const recipeResolver = {
       }
 
       await review.save();
+
+      return true;
+    },
+  ),
+  report: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { reviewId: string; message: string } },
+      { user }: { user: IUserType },
+    ) => {
+      const { reviewId, message } = input;
+
+      const review = await RecipeReview.findById(reviewId);
+
+      if (!review) {
+        throw new GraphQLError('There is no review with such id', {
+          extensions: {
+            code: 'NOT_FOUND',
+            http: { status: 404 },
+          },
+        });
+      }
+
+      if (review.userId.equals(user._id)) {
+        throw new GraphQLError("You can't report your own reviews", {
+          extensions: {
+            code: 'INPUT_ERROR',
+            http: { status: 400 },
+          },
+        });
+      }
+
+      if (message.trim().length < 12) {
+        throw new GraphQLError('Message should be at least 12 characters long', {
+          extensions: {
+            code: 'INPUT_ERROR',
+            http: { status: 400 },
+          },
+        });
+      }
+
+      await Report.create({ reviewId, senderId: user._id, message });
 
       return true;
     },
