@@ -53,6 +53,11 @@ const typeDefs = gql`
     id: String!
   }
 
+  input reviewIdWithMessage {
+    reviewId: String!
+    message: String!
+  }
+
   type Mutation {
     register(input: userInput!): Boolean
     login(input: userInput!): UserWithToken
@@ -63,6 +68,7 @@ const typeDefs = gql`
     reviewRecipe(input: reviewInput): Boolean
     removeReviewFromRecipe(input: reviewId): Boolean
     changeReview(input: reviewInput): Boolean
+    report(input: reviewIdWithMessage): Boolean
   }
 
   type UsersWithAmount {
