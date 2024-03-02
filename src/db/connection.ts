@@ -1,7 +1,7 @@
-import mongoose, { ConnectOptions } from 'mongoose';
-import logger from '../api/logger.js';
+import mongoose, { ConnectOptions } from "mongoose";
+import logger from "../api/logger.js";
 
-const { DB_NAME } = process.env;
+const { DB_USERNAME, DB_PASSWORD } = process.env;
 
 type ConnectionOptionsExtend = {
   useNewUrlParser: boolean;
@@ -14,16 +14,23 @@ const options: ConnectOptions & ConnectionOptionsExtend = {
 };
 
 const connect = async () => {
-  mongoose.set('debug', (collectionName: string, method: string, query: string, doc: string) =>
-    logger.debug(`${collectionName}.${method}: ${JSON.stringify(query)}, ${doc}`),
+  mongoose.set(
+    "debug",
+    (collectionName: string, method: string, query: string, doc: string) =>
+      logger.debug(
+        `${collectionName}.${method}: ${JSON.stringify(query)}, ${doc}`
+      )
   );
 
   mongoose.connection
-    .on('open', () => logger.info('Connection with DB established'))
-    .on('close', () => logger.info('Connection with DB closed'))
-    .on('error', logger.error);
+    .on("open", () => logger.info("Connection with DB established"))
+    .on("close", () => logger.info("Connection with DB closed"))
+    .on("error", logger.error);
 
-  await mongoose.connect(`mongodb://localhost:27017/${DB_NAME}`, options);
+  await mongoose.connect(
+    `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@mycluster.mjg9eco.mongodb.net/?retryWrites=true&w=majority&appName=MyCluster`,
+    options
+  );
 };
 
 export default connect;

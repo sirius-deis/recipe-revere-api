@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 const typeDefs = gql`
   input userPassword {
@@ -100,7 +100,7 @@ const typeDefs = gql`
     rating: Int!
   }
 
-  type RecipeWithReviews {
+  type RecipeWithReviewsAndAvgRating {
     recipe: Recipe!
     reviews: [Review]
     averageRating: Float

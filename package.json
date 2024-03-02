@@ -7,7 +7,7 @@
     "test": "jest",
     "coverage": "jest - --coverage",
     "compile": "tsc",
-    "start": "npm run compile && node ./dist/server.js",
+    "start": "node src\/server.ts",
     "dev": "nodemon ./dist/server.js",
     "lint": "eslint ./src --ext .ts",
     "debug": "node --inspect ./dist/server.js"
