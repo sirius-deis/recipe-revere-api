@@ -64,7 +64,7 @@ const findAverageRatingAndAmount = async (
       },
     },
   ]);
-  return [result[0].averageRating, result[0].amountOfReviews];
+  return [result[0]?.averageRating, result[0]?.amountOfReviews];
 };
 
 const fetchRecipesToPage = async (

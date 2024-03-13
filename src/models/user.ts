@@ -17,7 +17,7 @@ interface IUser {
   isBlocked: boolean;
   role: Roles;
   passwordChangedAt: number;
-  pictures: [string];
+  pictures: string[];
 }
 
 interface IUserMethods {

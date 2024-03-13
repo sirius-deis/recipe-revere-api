@@ -1,8 +1,9 @@
-import nodemailer from 'nodemailer';
-import ejs from 'ejs';
-import { convert } from 'html-to-text';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+import path from "path";
+import nodemailer from "nodemailer";
+import ejs from "ejs";
+import { convert } from "html-to-text";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 
 const { EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS } = process.env;
 
@@ -29,17 +30,20 @@ const sendEmail = async (
   to: string,
   subject: string,
   template: string,
-  context: { title: string; firstName?: string; link: string },
+  context: { title: string; firstName?: string; link: string }
 ) => {
-  const rendered = await ejs.renderFile(`${__dirname}/../views/${template}.ejs`, {
-    ...context,
-    homeLink,
-    logo: '',
-    from: 'RecipeRevere Team',
-    link: `${homeLink}${context.link}`,
-    firstName: context.firstName || to,
-    template: 'welcome',
-  });
+  const rendered = await ejs.renderFile(
+    path.resolve(`${__dirname}/../views/${template}.ejs`),
+    {
+      ...context,
+      homeLink,
+      logo: "",
+      from: "RecipeRevere Team",
+      link: `${homeLink}${context.link}`,
+      firstName: context.firstName || to,
+      template: "welcome",
+    }
+  );
 
   const options = {
     from: `RecipeRevere Team: <${EMAIL_USER}>`,
