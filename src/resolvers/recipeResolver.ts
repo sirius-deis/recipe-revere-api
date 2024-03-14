@@ -461,6 +461,22 @@ const recipeResolver = {
       const favorite = await Favorite.findById(recipeId);
 
       if (!favorite) {
+        const response = await axios.get(urlSingle, {
+          params: { uri: `${uri}${recipeId}` },
+        });
+        const data = response.data;
+        if (data.hits.length < 1) {
+          throw new GraphQLError("Recipe with provide id does not exist", {
+            extensions: {
+              code: "NOT_FOUND",
+              http: { status: 404 },
+            },
+          });
+        }
+        const recipeFromResponse = data.hits[0].recipe;
+
+        await setValue(`recipe-${recipeFromResponse.url}`, recipeFromResponse);
+
         Favorite.create({ recipeId, userId: user._id });
       } else {
         Favorite.findOneAndDelete({ recipeId });
