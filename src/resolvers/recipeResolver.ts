@@ -5,6 +5,7 @@ import { setValue, getValue } from "../db/redisConnection.js";
 import { IUserType } from "../models/user.js";
 import RecipeReview from "../models/recipeReview.js";
 import Report from "../models/report.js";
+import Favorite from "src/models/favorite.js";
 
 const { EDAMAM_APPLICATION_ID, EDAMAM_APPLICATION_KEY } = process.env;
 
@@ -456,7 +457,15 @@ const recipeResolver = {
       { user }: { user: IUserType }
     ) => {
       const { recipeId } = input;
-      
+
+      const favorite = await Favorite.findById(recipeId);
+
+      if (!favorite) {
+        Favorite.create({ recipeId, userId: user._id });
+      } else {
+        Favorite.findOneAndDelete({ recipeId });
+      }
+
       return true;
     }
   ),
