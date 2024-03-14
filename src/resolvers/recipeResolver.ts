@@ -126,28 +126,22 @@ const attachAverageRatingForAllRecipes = async (
   return recipes;
 };
 
-const fetchRecipeAndSaveToRedis = (recipeId: string) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const response = await axios.get(urlSingle, {
-        params: { uri: `${uri}${recipeId}` },
-      });
-      const data = response.data;
-      if (data.hits.length < 1) {
-        throw new GraphQLError("Recipe with provide id does not exist", {
-          extensions: {
-            code: "NOT_FOUND",
-            http: { status: 404 },
-          },
-        });
-      }
-      const recipeFromResponse = data.hits[0].recipe;
-      await setValue(`recipe-${recipeFromResponse.url}`, recipeFromResponse);
-      resolve(recipeFromResponse);
-    } catch (error) {
-      reject(error);
-    }
+const fetchRecipeAndSaveToRedis = async (recipeId: string): Promise<Recipe> => {
+  const response = await axios.get(urlSingle, {
+    params: { uri: `${uri}${recipeId}` },
   });
+  const data = response.data;
+  if (data.hits.length < 1) {
+    throw new GraphQLError("Recipe with provide id does not exist", {
+      extensions: {
+        code: "NOT_FOUND",
+        http: { status: 404 },
+      },
+    });
+  }
+  const recipeFromResponse = data.hits[0].recipe;
+  await setValue(`recipe-${recipeFromResponse.url}`, recipeFromResponse);
+  return recipeFromResponse;
 };
 
 const recipeResolver = {
@@ -238,26 +232,14 @@ const recipeResolver = {
         amountOfReviews,
       };
     }
-    const response = await axios.get(urlSingle, {
-      params: { uri: `${uri}${id}` },
-    });
-    const data = response.data;
-    if (data.hits.length < 1) {
-      throw new GraphQLError("Recipe with provide id does not exist", {
-        extensions: {
-          code: "NOT_FOUND",
-          http: { status: 404 },
-        },
-      });
-    }
-    const recipeFromResponse = data.hits[0].recipe;
+
+    const recipe = await fetchRecipeAndSaveToRedis(id);
     const [reviews, [averageRating, amountOfReviews]] = await Promise.all([
       findReviews(id),
       findAverageRatingAndAmount(id),
     ]);
-    await setValue(`recipe-${recipeFromResponse.url}`, recipeFromResponse);
     return {
-      recipe: recipeFromResponse,
+      recipe,
       reviews,
       averageRating,
       amountOfReviews,
