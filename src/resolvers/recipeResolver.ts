@@ -449,6 +449,17 @@ const recipeResolver = {
       return true;
     }
   ),
+  addToFavorite: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { recipeId: string } },
+      { user }: { user: IUserType }
+    ) => {
+      const { recipeId } = input;
+      
+      return true;
+    }
+  ),
 };
 
 export default recipeResolver;
