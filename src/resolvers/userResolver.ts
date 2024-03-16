@@ -7,7 +7,6 @@ import { setValue } from "../db/redisConnection.js";
 import Token from "../models/token.js";
 import sendEmail from "../api/email.js";
 import crypto from "crypto";
-import FriendRequest from "src/models/friendRequest.js";
 
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 
@@ -303,21 +302,15 @@ const userResolver = {
     ) => {
       const { userId } = input;
 
-      const userToAdd = await User.findById(userId);
-
-      if (!userToAdd) {
-        throw new GraphQLError("There is no such user", {
-          extensions: {
-            code: "NOT_FOUND",
-            http: { status: 404 },
-          },
-        });
-      }
-
-      //TODO: add blocked list check
-
-      await FriendRequest.create({ requesterId: user._id, userId: userId });
-
+      return true;
+    }
+  ),
+  processFriendRequest: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { friendRequestId: string; isApproved: boolean } },
+      { user }: { user: IUserType }
+    ) => {
       return true;
     }
   ),

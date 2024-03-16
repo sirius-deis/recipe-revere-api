@@ -66,8 +66,9 @@ const typeDefs = gql`
     userId: String!
   }
 
-  input friendRequestId {
+  input friendRequest {
     friendRequestId: String!
+    isApproved: Boolean!
   }
 
   type Mutation {
@@ -84,7 +85,7 @@ const typeDefs = gql`
     addToFavorite(input: recipeId): Boolean
     addToFriends(input: userId): Boolean
     removeFromFriends(input: userId): Boolean
-    processFriendRequest(input: friendRequestId): Boolean
+    processFriendRequest(input: friendRequest): Boolean
     blockUser(input: userId): Boolean
   }
 

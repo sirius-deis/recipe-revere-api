@@ -1,11 +1,11 @@
-import { Schema, Model, model, Types } from 'mongoose';
-import bcrypt from 'bcryptjs';
+import { Schema, Model, model, Types } from "mongoose";
+import bcrypt from "bcryptjs";
 
 const { BCRYPT_SALT } = process.env;
 
 enum Roles {
-  User = 'user',
-  Admin = 'admin',
+  User = "user",
+  Admin = "admin",
 }
 
 interface IUser {
@@ -18,6 +18,7 @@ interface IUser {
   role: Roles;
   passwordChangedAt: number;
   pictures: string[];
+  friends: Types.ObjectId[];
 }
 
 interface IUserMethods {
@@ -67,9 +68,15 @@ const userSchema = new Schema<IUser, IUserModal, IUserMethods>({
   pictures: {
     type: [String],
   },
+  friends: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Friend",
+    },
+  ],
 });
 
-userSchema.pre('save', function (next) {
+userSchema.pre("save", function (next) {
   if (this.isNew || !this.passwordChangedAt) {
     return next();
   }
@@ -77,8 +84,8 @@ userSchema.pre('save', function (next) {
   next();
 });
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
     return next();
   }
   const hash = await bcrypt.hash(this.password, +BCRYPT_SALT!);
@@ -90,6 +97,6 @@ userSchema.methods.comparePasswords = async function (assumedPassword: string) {
   return await bcrypt.compare(assumedPassword, this.password);
 };
 
-const User = model<IUser, IUserModal>('User', userSchema);
+const User = model<IUser, IUserModal>("User", userSchema);
 
 export default User;
