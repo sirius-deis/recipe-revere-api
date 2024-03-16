@@ -1,12 +1,13 @@
-import { GraphQLError } from 'graphql';
-import { Response } from 'express';
-import jwt from 'jsonwebtoken';
-import User, { IUserType } from '../models/user.js';
-import authWrapper from '../utils/auth.js';
-import { setValue } from '../db/redisConnection.js';
-import Token from '../models/token.js';
-import sendEmail from '../api/email.js';
-import crypto from 'crypto';
+import { GraphQLError } from "graphql";
+import { Response } from "express";
+import jwt from "jsonwebtoken";
+import User, { IUserType } from "../models/user.js";
+import authWrapper from "../utils/auth.js";
+import { setValue } from "../db/redisConnection.js";
+import Token from "../models/token.js";
+import sendEmail from "../api/email.js";
+import crypto from "crypto";
+import FriendRequest from "src/models/friendRequest.js";
 
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 
@@ -20,32 +21,34 @@ interface IUserInput {
   passwordConfirm?: string;
 }
 
-const generateToken = () => crypto.randomBytes(32).toString('hex');
+const generateToken = () => crypto.randomBytes(32).toString("hex");
 
 const USERS_PER_PAGE = 10;
 
 const userResolver = {
-  getUser: authWrapper(async (_: any, args: { userId: string }, context: { user: IUserType }) => {
-    const { userId } = args;
-    const user = await User.findById(userId);
+  getUser: authWrapper(
+    async (_: any, args: { userId: string }, context: { user: IUserType }) => {
+      const { userId } = args;
+      const user = await User.findById(userId);
 
-    if (!user) {
-      throw new GraphQLError('There is no such user', {
-        extensions: {
-          code: 'NOT_FOUND',
-          http: { status: 404 },
-        },
-      });
+      if (!user) {
+        throw new GraphQLError("There is no such user", {
+          extensions: {
+            code: "NOT_FOUND",
+            http: { status: 404 },
+          },
+        });
+      }
+
+      return {
+        id: user._id,
+        name: user.name,
+        email: context.user._id.equals(userId) ? user.email : undefined,
+        role: context.user._id.equals(userId) ? user.role : undefined,
+        pictures: user.pictures,
+      };
     }
-
-    return {
-      id: user._id,
-      name: user.name,
-      email: context.user._id.equals(userId) ? user.email : undefined,
-      role: context.user._id.equals(userId) ? user.role : undefined,
-      pictures: user.pictures,
-    };
-  }),
+  ),
   getUsers: authWrapper(async (_: any, args: { page: number }) => {
     const { page = 1 } = args;
     const users = await User.find()
@@ -53,9 +56,9 @@ const userResolver = {
       .limit(USERS_PER_PAGE);
 
     if (users.length < 1) {
-      throw new GraphQLError('There is no users left', {
+      throw new GraphQLError("There is no users left", {
         extensions: {
-          code: 'NOT_FOUND',
+          code: "NOT_FOUND",
           http: { status: 404 },
         },
       });
@@ -72,9 +75,9 @@ const userResolver = {
     const { email, password, passwordConfirm } = input;
 
     if (password !== passwordConfirm) {
-      throw new GraphQLError('Passwords are not the same', {
+      throw new GraphQLError("Passwords are not the same", {
         extensions: {
-          code: 'PASSWORD_ARE_NOT_THE_SAME',
+          code: "PASSWORD_ARE_NOT_THE_SAME",
           http: { status: 401 },
         },
       });
@@ -86,39 +89,43 @@ const userResolver = {
 
     await Token.create({ userId: user._id, token });
 
-    await sendEmail(email, 'Activate your account', 'verification', {
+    await sendEmail(email, "Activate your account", "verification", {
       link: `/users/activate/${token}`,
-      title: 'Activate your account',
+      title: "Activate your account",
     });
 
     return true;
   },
-  login: async (_: any, { input }: { input: IUserInput }, context: { res: Response }) => {
+  login: async (
+    _: any,
+    { input }: { input: IUserInput },
+    context: { res: Response }
+  ) => {
     const { email, password } = input;
     const { res } = context;
     const user = await User.findOne({ email });
     if (!user) {
-      throw new GraphQLError('There is no such user', {
+      throw new GraphQLError("There is no such user", {
         extensions: {
-          code: 'NOT_FOUND',
+          code: "NOT_FOUND",
           http: { status: 404 },
         },
       });
     }
 
     if (!user.isActive) {
-      throw new GraphQLError('Your account is not activated', {
+      throw new GraphQLError("Your account is not activated", {
         extensions: {
-          code: 'AUTHENTICATION_FAILED',
+          code: "AUTHENTICATION_FAILED",
           http: { status: 401 },
         },
       });
     }
 
     if (!(await user.comparePasswords(password))) {
-      throw new GraphQLError('Password is incorrect', {
+      throw new GraphQLError("Password is incorrect", {
         extensions: {
-          code: 'AUTHENTICATION_FAILED',
+          code: "AUTHENTICATION_FAILED",
           http: { status: 401 },
         },
       });
@@ -126,8 +133,8 @@ const userResolver = {
 
     const token = signToken(user._id.toString());
 
-    const refreshToken = signToken(user._id.toString(), '90d');
-    res.cookie('refresh-token', refreshToken);
+    const refreshToken = signToken(user._id.toString(), "90d");
+    res.cookie("refresh-token", refreshToken);
 
     return {
       user: {
@@ -144,16 +151,16 @@ const userResolver = {
     async (
       _: any,
       { input }: { input: { password: string } },
-      context: { user: IUserType; res: Response },
+      context: { user: IUserType; res: Response }
     ) => {
       const { user, res } = context;
 
       const { password } = input;
 
       if (!(await user.comparePasswords(password))) {
-        throw new GraphQLError('Password is incorrect', {
+        throw new GraphQLError("Password is incorrect", {
           extensions: {
-            code: 'AUTHENTICATION_FAILED',
+            code: "AUTHENTICATION_FAILED",
             http: { status: 401 },
           },
         });
@@ -161,10 +168,10 @@ const userResolver = {
 
       await user.deleteOne();
 
-      res.clearCookie('refresh-token');
+      res.clearCookie("refresh-token");
 
       return true;
-    },
+    }
   ),
   updatePassword: authWrapper(
     async (
@@ -178,33 +185,33 @@ const userResolver = {
           newPasswordConfirm: string;
         };
       },
-      context: { user: IUserType },
+      context: { user: IUserType }
     ) => {
       const { user } = context;
       const { password, newPassword, newPasswordConfirm } = input;
 
       if (!(await user.comparePasswords(password))) {
-        throw new GraphQLError('Password is incorrect', {
+        throw new GraphQLError("Password is incorrect", {
           extensions: {
-            code: 'AUTHENTICATION_FAILED',
+            code: "AUTHENTICATION_FAILED",
             http: { status: 401 },
           },
         });
       }
 
       if (await user.comparePasswords(newPassword)) {
-        throw new GraphQLError('Passwords are the same', {
+        throw new GraphQLError("Passwords are the same", {
           extensions: {
-            code: 'PASSWORD_ARE_THE_SAME',
+            code: "PASSWORD_ARE_THE_SAME",
             http: { status: 400 },
           },
         });
       }
 
       if (newPassword !== newPasswordConfirm) {
-        throw new GraphQLError('Passwords are not the same', {
+        throw new GraphQLError("Passwords are not the same", {
           extensions: {
-            code: 'PASSWORD_ARE_NOT_THE_SAME',
+            code: "PASSWORD_ARE_NOT_THE_SAME",
             http: { status: 400 },
           },
         });
@@ -217,17 +224,21 @@ const userResolver = {
       await user.save();
 
       return token;
-    },
+    }
   ),
   updateInfo: authWrapper(
-    async (_: any, { input }: { input: { name: string } }, context: { user: IUserType }) => {
+    async (
+      _: any,
+      { input }: { input: { name: string } },
+      context: { user: IUserType }
+    ) => {
       const { user } = context;
       const { name } = input;
 
       if (name.trim().length < 4) {
         throw new GraphQLError("Name can't be shorter than 4 characters long", {
           extensions: {
-            code: 'VALIDATION_ERROR',
+            code: "VALIDATION_ERROR",
             http: { status: 400 },
           },
         });
@@ -238,28 +249,36 @@ const userResolver = {
       await user.save();
 
       return true;
-    },
+    }
   ),
   logout: authWrapper(
-    async (_: any, __: any, context: { exp: any; token: string; res: Response }) => {
+    async (
+      _: any,
+      __: any,
+      context: { exp: any; token: string; res: Response }
+    ) => {
       const { exp, token, res } = context;
 
-      res.clearCookie('refresh-token');
+      res.clearCookie("refresh-token");
 
       setValue(`bl-${token}`, token, { EX: exp });
 
       return true;
-    },
+    }
   ),
-  forgetPassword: async (_: any, { input }: { input: { email: string } }, __: any) => {
+  forgetPassword: async (
+    _: any,
+    { input }: { input: { email: string } },
+    __: any
+  ) => {
     const { email } = input;
 
     const user = await User.findOne({ email });
 
     if (!user) {
-      throw new GraphQLError('There is no such email', {
+      throw new GraphQLError("There is no such email", {
         extensions: {
-          code: 'NOT_FOUND',
+          code: "NOT_FOUND",
           http: { status: 404 },
         },
       });
@@ -269,13 +288,39 @@ const userResolver = {
 
     await Token.create({ userId: user._id, token });
 
-    await sendEmail(email, 'Reset your password', 'reset', {
+    await sendEmail(email, "Reset your password", "reset", {
       link: `/users/reset-password/${token}`,
-      title: 'Activate your account',
+      title: "Activate your account",
     });
 
-    return 'Check your email to reset your password';
+    return "Check your email to reset your password";
   },
+  addToFriends: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { userId: string } },
+      { user }: { user: IUserType }
+    ) => {
+      const { userId } = input;
+
+      const userToAdd = await User.findById(userId);
+
+      if (!userToAdd) {
+        throw new GraphQLError("There is no such user", {
+          extensions: {
+            code: "NOT_FOUND",
+            http: { status: 404 },
+          },
+        });
+      }
+
+      //TODO: add blocked list check
+
+      await FriendRequest.create({ requesterId: user._id, userId: userId });
+
+      return true;
+    }
+  ),
 };
 
 export default userResolver;
