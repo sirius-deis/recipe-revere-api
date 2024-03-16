@@ -477,6 +477,13 @@ const recipeResolver = {
       return true;
     }
   ),
+  getFavorites: authWrapper(
+    async (_: any, __: any, { user }: { user: IUserType }) => {
+      const favoriteIds = await Favorite.find({ userId: user._id });
+
+      return favoriteIds;
+    }
+  ),
 };
 
 export default recipeResolver;
