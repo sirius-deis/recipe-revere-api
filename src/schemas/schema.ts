@@ -63,7 +63,7 @@ const typeDefs = gql`
   }
 
   input userId {
-    userId: String!
+    userToAddId: String!
   }
 
   input friendRequest {
@@ -83,7 +83,7 @@ const typeDefs = gql`
     changeReview(input: reviewInput): Boolean
     report(input: reviewIdWithMessage): Boolean
     addToFavorite(input: recipeId): Boolean
-    addToFriends(input: userId): Boolean
+    sendRequestToFriends(input: userId): Boolean
     removeFromFriends(input: userId): Boolean
     processFriendRequest(input: friendRequest): Boolean
     blockUser(input: userId): Boolean

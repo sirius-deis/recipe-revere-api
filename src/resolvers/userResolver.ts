@@ -7,6 +7,7 @@ import { setValue } from "../db/redisConnection.js";
 import Token from "../models/token.js";
 import sendEmail from "../api/email.js";
 import crypto from "crypto";
+import FriendsRequest from "src/models/friendsRequest.js";
 
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 
@@ -294,13 +295,53 @@ const userResolver = {
 
     return "Check your email to reset your password";
   },
-  addToFriends: authWrapper(
+  sendRequestToFriends: authWrapper(
     async (
       _: any,
-      { input }: { input: { userId: string } },
+      { input }: { input: { userToAddId: string } },
       { user }: { user: IUserType }
     ) => {
-      const { userId } = input;
+      const { userToAddId } = input;
+
+      const userToAdd = await User.findById(userToAddId);
+
+      if (!userToAdd) {
+        throw new GraphQLError("There is no such user", {
+          extensions: {
+            code: "NOT_FOUND",
+            http: { status: 404 },
+          },
+        });
+      }
+
+      Promise.all([
+        await FriendsRequest.create(
+          {
+            recipient: userToAddId,
+            requester: user._id,
+          },
+          { $set: { status: 1 } },
+          { upsert: true, new: true }
+        ),
+        await FriendsRequest.create(
+          {
+            recipient: user._id,
+            requester: userToAddId,
+          },
+          { $set: { status: 2 } },
+          { upsert: true, new: true }
+        ),
+        await User.findOneAndUpdate(
+          { _id: user._id },
+          { $push: { friends: userToAddId } }
+        ),
+        await User.findOneAndUpdate(
+          {
+            _id: userToAddId,
+          },
+          { $push: { friends: user._id } }
+        ),
+      ]);
 
       return true;
     }
