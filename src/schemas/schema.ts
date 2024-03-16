@@ -67,8 +67,8 @@ const typeDefs = gql`
   }
 
   input friendRequest {
-    friendRequestId: String!
-    isApproved: Boolean!
+    userToAddId: String!
+    isAccepted: Boolean!
   }
 
   type Mutation {

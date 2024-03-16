@@ -314,8 +314,8 @@ const userResolver = {
         });
       }
 
-      Promise.all([
-        await FriendsRequest.create(
+      await Promise.all([
+        FriendsRequest.create(
           {
             recipient: userToAddId,
             requester: user._id,
@@ -323,7 +323,7 @@ const userResolver = {
           { $set: { status: 1 } },
           { upsert: true, new: true }
         ),
-        await FriendsRequest.create(
+        FriendsRequest.create(
           {
             recipient: user._id,
             requester: userToAddId,
@@ -331,11 +331,11 @@ const userResolver = {
           { $set: { status: 2 } },
           { upsert: true, new: true }
         ),
-        await User.findOneAndUpdate(
+        User.findOneAndUpdate(
           { _id: user._id },
           { $push: { friends: userToAddId } }
         ),
-        await User.findOneAndUpdate(
+        User.findOneAndUpdate(
           {
             _id: userToAddId,
           },
@@ -349,9 +349,27 @@ const userResolver = {
   processFriendRequest: authWrapper(
     async (
       _: any,
-      { input }: { input: { friendRequestId: string; isApproved: boolean } },
+      { input }: { input: { userToAddId: string; isAccepted: boolean } },
       { user }: { user: IUserType }
     ) => {
+      const { userToAddId, isAccepted } = input;
+
+      if (isAccepted) {
+        await Promise.all([
+          FriendsRequest.findOneAndUpdate(
+            { recipient: user._id, requester: userToAddId },
+            { $set: { status: 3 } }
+          ),
+          FriendsRequest.findOneAndUpdate(
+            { recipient: userToAddId, requester: user._id },
+            {
+              $set: { status: 3 },
+            }
+          ),
+        ]);
+      } else {
+      }
+
       return true;
     }
   ),
