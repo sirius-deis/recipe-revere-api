@@ -62,6 +62,14 @@ const typeDefs = gql`
     recipeId: String!
   }
 
+  input userId {
+    userId: String!
+  }
+
+  input friendRequestId {
+    friendRequestId: String!
+  }
+
   type Mutation {
     register(input: userInput!): Boolean
     login(input: userInput!): UserWithToken
@@ -74,6 +82,10 @@ const typeDefs = gql`
     changeReview(input: reviewInput): Boolean
     report(input: reviewIdWithMessage): Boolean
     addToFavorite(input: recipeId): Boolean
+    addToFriends(input: userId): Boolean
+    removeFromFriends(input: userId): Boolean
+    processFriendRequest(input: friendRequestId): Boolean
+    blockUser(input: userId): Boolean
   }
 
   type UsersWithAmount {
