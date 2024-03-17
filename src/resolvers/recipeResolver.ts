@@ -6,6 +6,7 @@ import { IUserType } from "../models/user.js";
 import RecipeReview from "../models/recipeReview.js";
 import Report from "../models/report.js";
 import Favorite from "src/models/favorite.js";
+import ShoppingList from "src/models/shoppingList.js";
 
 const { EDAMAM_APPLICATION_ID, EDAMAM_APPLICATION_KEY } = process.env;
 
@@ -482,6 +483,25 @@ const recipeResolver = {
       const favoriteIds = await Favorite.find({ userId: user._id });
 
       return favoriteIds;
+    }
+  ),
+  addToFavoriteList: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { recipeId: string } },
+      { user }: { user: IUserType }
+    ) => {
+      const { recipeId } = input;
+
+      const recipeInShoppingList = await ShoppingList.findById(recipeId);
+
+      if (recipeInShoppingList) {
+        return true;
+      }
+
+      await ShoppingList.create({ recipeId, userId: user._id });
+
+      return true;
     }
   ),
 };
