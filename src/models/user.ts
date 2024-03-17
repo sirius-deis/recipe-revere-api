@@ -19,6 +19,7 @@ export interface IUser {
   passwordChangedAt: number;
   pictures: string[];
   friends: Types.ObjectId[];
+  blockedUsers: Types.ObjectId[];
 }
 
 interface IUserMethods {
@@ -72,6 +73,12 @@ const UserSchema = new Schema<IUser, IUserModal, IUserMethods>({
     {
       type: Schema.Types.ObjectId,
       ref: "Friend",
+    },
+  ],
+  blockedUsers: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
   ],
 });
