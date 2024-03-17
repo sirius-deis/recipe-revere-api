@@ -26,9 +26,9 @@ const generateToken = () => crypto.randomBytes(32).toString("hex");
 const USERS_PER_PAGE = 10;
 
 const checkIfUserExists = async (userId: string) => {
-  const userToAdd = await User.findById(userId);
+  const user = await User.findById(userId);
 
-  if (!userToAdd) {
+  if (!user) {
     throw new GraphQLError("There is no such user", {
       extensions: {
         code: "NOT_FOUND",
@@ -36,6 +36,8 @@ const checkIfUserExists = async (userId: string) => {
       },
     });
   }
+
+  return user;
 };
 
 const userResolver = {
@@ -405,6 +407,19 @@ const userResolver = {
           ),
         ]);
       }
+
+      return true;
+    }
+  ),
+  removeFromFriends: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { userId: string } },
+      { user }: { user: IUserType }
+    ) => {
+      const { userId: userToRemoveId } = input;
+
+      await checkIfUserExists(userToRemoveId);
 
       return true;
     }
