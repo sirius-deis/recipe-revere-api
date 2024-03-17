@@ -452,6 +452,23 @@ const userResolver = {
       return true;
     }
   ),
+  blockUser: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { userId: string } },
+      { user }: { user: IUserType }
+    ) => {
+      const { userId: userToBlockId } = input;
+
+      await checkIfUserExists(userToBlockId);
+
+      await User.findByIdAndUpdate(user._id, {
+        $push: { blockedUsers: userToBlockId },
+      });
+
+      return true;
+    }
+  ),
 };
 
 export default userResolver;
