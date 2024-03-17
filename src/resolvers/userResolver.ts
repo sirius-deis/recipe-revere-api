@@ -25,6 +25,19 @@ const generateToken = () => crypto.randomBytes(32).toString("hex");
 
 const USERS_PER_PAGE = 10;
 
+const checkIfUserExists = async (userId: string) => {
+  const userToAdd = await User.findById(userId);
+
+  if (!userToAdd) {
+    throw new GraphQLError("There is no such user", {
+      extensions: {
+        code: "NOT_FOUND",
+        http: { status: 404 },
+      },
+    });
+  }
+};
+
 const userResolver = {
   getUser: authWrapper(
     async (_: any, args: { userId: string }, context: { user: IUserType }) => {
@@ -303,16 +316,7 @@ const userResolver = {
     ) => {
       const { userToAddId } = input;
 
-      const userToAdd = await User.findById(userToAddId);
-
-      if (!userToAdd) {
-        throw new GraphQLError("There is no such user", {
-          extensions: {
-            code: "NOT_FOUND",
-            http: { status: 404 },
-          },
-        });
-      }
+      await checkIfUserExists(userToAddId);
 
       await Promise.all([
         FriendsRequest.create(
@@ -353,6 +357,8 @@ const userResolver = {
       { user }: { user: IUserType }
     ) => {
       const { userToAddId, isAccepted } = input;
+
+      await checkIfUserExists(userToAddId);
 
       if (isAccepted) {
         await Promise.all([
