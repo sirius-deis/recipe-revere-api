@@ -368,6 +368,36 @@ const userResolver = {
           ),
         ]);
       } else {
+        await Promise.all([
+          FriendsRequest.findOneAndRemove({
+            recipient: userToAddId,
+            requester: user._id,
+          }),
+          FriendsRequest.findOneAndRemove({
+            recipient: user._id,
+            requester: userToAddId,
+          }),
+          User.findOneAndUpdate(
+            {
+              _id: user._id,
+            },
+            {
+              $pull: {
+                friends: userToAddId,
+              },
+            }
+          ),
+          User.findOneAndUpdate(
+            {
+              _id: userToAddId,
+            },
+            {
+              $pull: {
+                friends: user._id,
+              },
+            }
+          ),
+        ]);
       }
 
       return true;
