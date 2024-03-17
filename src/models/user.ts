@@ -8,7 +8,7 @@ enum Roles {
   Admin = "admin",
 }
 
-interface IUser {
+export interface IUser {
   _id: Types.ObjectId;
   name: string;
   email: string;
@@ -30,7 +30,7 @@ type IUserModal = Model<IUser, {}, IUserMethods>;
 
 export type IUserType = IUser & IUserMethods & IUserModal;
 
-const userSchema = new Schema<IUser, IUserModal, IUserMethods>({
+const UserSchema = new Schema<IUser, IUserModal, IUserMethods>({
   name: {
     type: String,
     minlength: 4,
@@ -76,7 +76,7 @@ const userSchema = new Schema<IUser, IUserModal, IUserMethods>({
   ],
 });
 
-userSchema.pre("save", function (next) {
+UserSchema.pre("save", function (next) {
   if (this.isNew || !this.passwordChangedAt) {
     return next();
   }
@@ -84,7 +84,7 @@ userSchema.pre("save", function (next) {
   next();
 });
 
-userSchema.pre("save", async function (next) {
+UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
   }
@@ -93,10 +93,10 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.methods.comparePasswords = async function (assumedPassword: string) {
+UserSchema.methods.comparePasswords = async function (assumedPassword: string) {
   return await bcrypt.compare(assumedPassword, this.password);
 };
 
-const User = model<IUser, IUserModal>("User", userSchema);
+const User = model<IUser, IUserModal>("User", UserSchema);
 
 export default User;

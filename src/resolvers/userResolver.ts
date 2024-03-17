@@ -1,13 +1,13 @@
 import { GraphQLError } from "graphql";
 import { Response } from "express";
 import jwt from "jsonwebtoken";
-import User, { IUserType } from "../models/user.js";
+import User, { IUserType, IUser } from "../models/user.js";
 import authWrapper from "../utils/auth.js";
 import { setValue } from "../db/redisConnection.js";
 import Token from "../models/token.js";
 import sendEmail from "../api/email.js";
 import crypto from "crypto";
-import FriendsRequest from "src/models/friendsRequest.js";
+import Friends from "src/models/friends.js";
 
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 
@@ -25,7 +25,7 @@ const generateToken = () => crypto.randomBytes(32).toString("hex");
 
 const USERS_PER_PAGE = 10;
 
-const checkIfUserExists = async (userId: string) => {
+const checkIfUserExists = async (userId: string): Promise<IUser> => {
   const user = await User.findById(userId);
 
   if (!user) {
@@ -321,7 +321,7 @@ const userResolver = {
       await checkIfUserExists(userToAddId);
 
       await Promise.all([
-        FriendsRequest.create(
+        Friends.create(
           {
             recipient: userToAddId,
             requester: user._id,
@@ -329,7 +329,7 @@ const userResolver = {
           { $set: { status: 1 } },
           { upsert: true, new: true }
         ),
-        FriendsRequest.create(
+        Friends.create(
           {
             recipient: user._id,
             requester: userToAddId,
@@ -364,11 +364,11 @@ const userResolver = {
 
       if (isAccepted) {
         await Promise.all([
-          FriendsRequest.findOneAndUpdate(
+          Friends.findOneAndUpdate(
             { recipient: user._id, requester: userToAddId },
             { $set: { status: 3 } }
           ),
-          FriendsRequest.findOneAndUpdate(
+          Friends.findOneAndUpdate(
             { recipient: userToAddId, requester: user._id },
             {
               $set: { status: 3 },
@@ -377,11 +377,11 @@ const userResolver = {
         ]);
       } else {
         await Promise.all([
-          FriendsRequest.findOneAndRemove({
+          Friends.findOneAndRemove({
             recipient: userToAddId,
             requester: user._id,
           }),
-          FriendsRequest.findOneAndRemove({
+          Friends.findOneAndRemove({
             recipient: user._id,
             requester: userToAddId,
           }),
@@ -420,6 +420,17 @@ const userResolver = {
       const { userId: userToRemoveId } = input;
 
       await checkIfUserExists(userToRemoveId);
+
+      const foundFriend = user.friends.find((userId) => userId === user._id);
+
+      if (!foundFriend) {
+        throw new GraphQLError("You are not friends with this user", {
+          extensions: {
+            code: "NOT_FOUND",
+            http: { status: 404 },
+          },
+        });
+      }
 
       return true;
     }

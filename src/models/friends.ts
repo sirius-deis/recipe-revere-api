@@ -1,15 +1,15 @@
 import { Schema, Model, model, Types } from "mongoose";
 
-interface IFriendsRequest {
+interface IFriends {
   _id: Types.ObjectId;
   requester: Types.ObjectId;
   recipient: Types.ObjectId;
   status: Types.Decimal128;
 }
 
-type FriendsRequestModel = Model<IFriendsRequest, {}>;
+type FriendsModel = Model<IFriends, {}>;
 
-const FriendsRequestSchema = new Schema<IFriendsRequest, FriendsRequestModel>({
+const FriendsSchema = new Schema<IFriends, FriendsModel>({
   requester: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -32,9 +32,6 @@ const FriendsRequestSchema = new Schema<IFriendsRequest, FriendsRequestModel>({
   },
 });
 
-const FriendsRequest = model<IFriendsRequest, FriendsRequestModel>(
-  "FriendsRequest",
-  FriendsRequestSchema
-);
+const Friends = model<IFriends, FriendsModel>("Friends", FriendsSchema);
 
-export default FriendsRequest;
+export default Friends;
