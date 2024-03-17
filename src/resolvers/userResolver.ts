@@ -40,6 +40,42 @@ const checkIfUserExists = async (userId: string): Promise<IUser> => {
   return user;
 };
 
+const removeFromFriends = async (
+  currentUserId: string,
+  anotherUserId: string
+) => {
+  await Promise.all([
+    Friends.findOneAndRemove({
+      recipient: anotherUserId,
+      requester: currentUserId,
+    }),
+    Friends.findOneAndRemove({
+      recipient: currentUserId,
+      requester: anotherUserId,
+    }),
+    User.findOneAndUpdate(
+      {
+        _id: currentUserId,
+      },
+      {
+        $pull: {
+          friends: anotherUserId,
+        },
+      }
+    ),
+    User.findOneAndUpdate(
+      {
+        _id: anotherUserId,
+      },
+      {
+        $pull: {
+          friends: currentUserId,
+        },
+      }
+    ),
+  ]);
+};
+
 const userResolver = {
   getUser: authWrapper(
     async (_: any, args: { userId: string }, context: { user: IUserType }) => {
@@ -421,7 +457,9 @@ const userResolver = {
 
       await checkIfUserExists(userToRemoveId);
 
-      const foundFriend = user.friends.find((userId) => userId === user._id);
+      const foundFriend = user.friends.find((friend) =>
+        friend._id.equals(user._id)
+      );
 
       if (!foundFriend) {
         throw new GraphQLError("You are not friends with this user", {
@@ -461,6 +499,14 @@ const userResolver = {
       const { userId: userToBlockId } = input;
 
       await checkIfUserExists(userToBlockId);
+
+      const userToBlockInFriendsList = user.friends.find((friend) =>
+        friend._id.equals(userToBlockId)
+      );
+
+      if (userToBlockInFriendsList) {
+        await removeFromFriends(user._id.toString(), userToBlockId);
+      }
 
       await User.findByIdAndUpdate(user._id, {
         $push: { blockedUsers: userToBlockId },
