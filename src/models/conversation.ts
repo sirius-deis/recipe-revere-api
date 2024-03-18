@@ -3,7 +3,7 @@ import { Schema, Model, model, Types } from "mongoose";
 interface IConversation {
   _id: Types.ObjectId;
   name: string;
-  creator: Types.ObjectId;
+  creatorId: Types.ObjectId;
   members: Types.ObjectId[];
 }
 
@@ -15,8 +15,10 @@ const ConversationSchema = new Schema<IConversation, ConversationModel>({
     required: true,
     minlength: 5,
     maxlength: 256,
+    unique: true,
+    trim: true,
   },
-  creator: {
+  creatorId: {
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,

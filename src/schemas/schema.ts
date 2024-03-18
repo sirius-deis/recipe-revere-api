@@ -71,6 +71,10 @@ const typeDefs = gql`
     isAccepted: Boolean!
   }
 
+  input conversationName {
+    conversationName: String!
+  }
+
   input conversationId {
     conversationId: String!
   }
@@ -104,7 +108,7 @@ const typeDefs = gql`
     addToShoppingList(input: recipeId): Boolean
     unblockUser(input: userId): Boolean
 
-    createConversation(): Boolean
+    createConversation(input: conversationName): Boolean
     deleteConversation(input: conversationId): Boolean
     changeConversationName(input: conversationIdWithNewName): Boolean
     addUserToConversation(input: conversationIdWithUserId): Boolean
