@@ -372,6 +372,22 @@ const userResolver = {
         );
       }
 
+      if (
+        user.blockedUsers.find((blockedUser) =>
+          blockedUser._id.equals(userToAddId)
+        )
+      ) {
+        throw new GraphQLError(
+          "You can't send request to this user as you blocked him. Unblock him first if you want to send him a request",
+          {
+            extensions: {
+              code: "VALIDATION_ERROR",
+              http: { status: 400 },
+            },
+          }
+        );
+      }
+
       await Promise.all([
         Friends.create(
           {
