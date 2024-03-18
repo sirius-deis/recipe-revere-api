@@ -412,36 +412,7 @@ const userResolver = {
           ),
         ]);
       } else {
-        await Promise.all([
-          Friends.findOneAndRemove({
-            recipient: userToAddId,
-            requester: user._id,
-          }),
-          Friends.findOneAndRemove({
-            recipient: user._id,
-            requester: userToAddId,
-          }),
-          User.findOneAndUpdate(
-            {
-              _id: user._id,
-            },
-            {
-              $pull: {
-                friends: userToAddId,
-              },
-            }
-          ),
-          User.findOneAndUpdate(
-            {
-              _id: userToAddId,
-            },
-            {
-              $pull: {
-                friends: user._id,
-              },
-            }
-          ),
-        ]);
+        removeFromFriends(user._id.toString(), userToAddId);
       }
 
       return true;
@@ -470,22 +441,7 @@ const userResolver = {
         });
       }
 
-      await Promise.all([
-        User.findByIdAndUpdate(user._id, {
-          $pull: { friends: userToRemoveId },
-        }),
-        User.findByIdAndUpdate(userToRemoveId, {
-          $pull: { friends: user._id },
-        }),
-        Friends.findOneAndRemove({
-          recipient: user._id,
-          requester: userToRemoveId,
-        }),
-        Friends.findOneAndRemove({
-          recipient: userToRemoveId,
-          requester: user._id,
-        }),
-      ]);
+      removeFromFriends(user._id.toString(), userToRemoveId);
 
       return true;
     }
