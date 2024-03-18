@@ -88,6 +88,7 @@ const typeDefs = gql`
     processFriendRequest(input: friendRequest): Boolean
     blockUser(input: userId): Boolean
     addToShoppingList(input: recipeId): Boolean
+    unblockUser(input: userId): Boolean
   }
 
   type UsersWithAmount {

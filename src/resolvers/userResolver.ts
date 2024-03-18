@@ -471,6 +471,34 @@ const userResolver = {
       return true;
     }
   ),
+  unblockUser: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { userId: string } },
+      { user }: { user: IUserType }
+    ) => {
+      const { userId: userToUnblockId } = input;
+
+      const foundBlockedUser = user.blockedUsers.find((blockedUser) =>
+        blockedUser._id.equals(userToUnblockId)
+      );
+
+      if (!foundBlockedUser) {
+        throw new GraphQLError("Provided user is not blocked by you", {
+          extensions: {
+            code: "NOT_FOUND",
+            http: { status: 404 },
+          },
+        });
+      }
+
+      await User.findByIdAndUpdate(user._id, {
+        $pull: { blockedUsers: userToUnblockId },
+      });
+
+      return true;
+    }
+  ),
 };
 
 export default userResolver;

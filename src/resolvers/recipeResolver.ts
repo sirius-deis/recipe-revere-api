@@ -485,7 +485,7 @@ const recipeResolver = {
       return favoriteIds;
     }
   ),
-  addToFavoriteList: authWrapper(
+  addToShoppingList: authWrapper(
     async (
       _: any,
       { input }: { input: { recipeId: string } },
