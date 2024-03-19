@@ -74,11 +74,15 @@ const conversationResolver = {
       { input }: { input: { conversationId: string; newName: string } },
       { user }: { user: IUserType }
     ) => {
-      const { conversationId } = input;
+      const { conversationId, newName } = input;
 
       const conversation = await checkIfConversationExists(conversationId);
 
       await checkIfUserHasRights(conversation, user._id.toString());
+
+      conversation.name = newName;
+
+      await conversation.save();
 
       return true;
     }

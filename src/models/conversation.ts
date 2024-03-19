@@ -16,6 +16,7 @@ interface IConversation {
 
 interface IConversationMethods {
   deleteOne: () => Promise<IConversation | never>;
+  save: () => Promise<never>;
 }
 
 type ConversationModel = Model<IConversation, {}, IConversationMethods>;
