@@ -6,7 +6,7 @@ interface IMessage {
   senderId: Types.ObjectId;
 }
 
-interface IConversation {
+export interface IConversation {
   _id: Types.ObjectId;
   name: string;
   creatorId: Types.ObjectId;

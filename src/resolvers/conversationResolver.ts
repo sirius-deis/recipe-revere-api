@@ -1,7 +1,24 @@
 import { GraphQLError } from "graphql";
-import Conversation from "src/models/conversation";
+import Conversation, { IConversation } from "src/models/conversation";
 import { IUserType } from "src/models/user";
 import authWrapper from "src/utils/auth";
+
+const checkIfConversationExists = async (
+  conversationId: string
+): Promise<IConversation> => {
+  const conversation = await Conversation.findById(conversationId);
+
+  if (!conversation) {
+    throw new GraphQLError("Conversation not found", {
+      extensions: {
+        code: "NOT_FOUND",
+        http: { status: 404 },
+      },
+    });
+  }
+
+  return conversation;
+};
 
 const conversationResolver = {
   createConversation: authWrapper(
@@ -50,6 +67,15 @@ const conversationResolver = {
 
       await conversation.deleteOne();
 
+      return true;
+    }
+  ),
+  changeConversationName: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { conversationId: string; newName: string } },
+      { user }: { user: IUserType }
+    ) => {
       return true;
     }
   ),
