@@ -38,14 +38,17 @@ const conversationResolver = {
   createConversation: authWrapper(
     async (
       _: any,
-      { input }: { input: { conversationName: string } },
+      {
+        input,
+      }: { input: { conversationName: string; conversationType: string } },
       { user }: { user: IUserType }
     ) => {
-      const { conversationName } = input;
+      const { conversationName, conversationType = "public" } = input;
 
       await Conversation.create({
         creatorId: user._id,
         name: conversationName,
+        type: conversationType,
       });
 
       return true;

@@ -10,6 +10,7 @@ interface IConversation {
   _id: Types.ObjectId;
   name: string;
   creatorId: Types.ObjectId;
+  type: string;
   members: Types.ObjectId[];
   messages: IMessage[];
 }
@@ -36,6 +37,11 @@ const ConversationSchema = new Schema<IConversation, ConversationModel>({
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
+  },
+  type: {
+    type: String,
+    required: true,
+    enum: ["private", "public"],
   },
   members: [
     {
