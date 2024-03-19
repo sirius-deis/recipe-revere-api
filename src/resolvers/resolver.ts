@@ -31,7 +31,8 @@ const resolvers = {
     addToShoppingList: recipeResolver.addToShoppingList,
     createConversation: conversationResolver.createConversation,
     deleteConversation: conversationResolver.deleteConversation,
-    // changeConversationName: conversationResolver.changeConversationName,
+    changeConversationName: conversationResolver.changeConversationName,
+    addUsersToConversation: conversationResolver.addUsersToConversation,
   },
 };
 

@@ -87,6 +87,25 @@ const conversationResolver = {
       return true;
     }
   ),
+  addUsersToConversation: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { conversationId: string; usersId: string[] } },
+      { user }: { user: IUserType }
+    ) => {
+      const { conversationId, usersId } = input;
+
+      const conversation = await checkIfConversationExists(conversationId);
+
+      await checkIfUserHasRights(conversation, user._id.toString());
+
+      await Conversation.findByIdAndUpdate(conversationId, {
+        $addToSet: { members: { $each: [usersId] } },
+      });
+
+      return true;
+    }
+  ),
 };
 
 export default conversationResolver;
