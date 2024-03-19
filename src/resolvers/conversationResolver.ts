@@ -61,14 +61,7 @@ const conversationResolver = {
 
       const conversation = await checkIfConversationExists(conversationId);
 
-      if (conversation.creatorId.equals(user._id)) {
-        throw new GraphQLError("You are not the creator of this conversation", {
-          extensions: {
-            code: "NOT_AUTHORIZED",
-            http: { status: 401 },
-          },
-        });
-      }
+      await checkIfUserHasRights(conversation, user._id.toString());
 
       await conversation.deleteOne();
 
@@ -84,6 +77,8 @@ const conversationResolver = {
       const { conversationId } = input;
 
       const conversation = await checkIfConversationExists(conversationId);
+
+      await checkIfUserHasRights(conversation, user._id.toString());
 
       return true;
     }
