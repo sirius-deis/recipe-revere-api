@@ -84,9 +84,14 @@ const typeDefs = gql`
     newName: String!
   }
 
-  input conversationIdWithUserId {
+  input conversationIdWithUsersId {
     conversationId: String!
     usersId: [String]!
+  }
+
+  input conversationIdWithUserId {
+    conversationId: String!
+    userId: String!
   }
 
   type Mutation {
@@ -112,7 +117,7 @@ const typeDefs = gql`
     deleteConversation(input: conversationId): Boolean
     changeConversationName(input: conversationIdWithNewName): Boolean
     addUsersToConversation(input: conversationIdWithUsersId): Boolean
-    removeUserToConversation(input: conversationIdWithUserId): Boolean
+    removeUserFromConversation(input: conversationIdWithUserId): Boolean
   }
 
   type UsersWithAmount {

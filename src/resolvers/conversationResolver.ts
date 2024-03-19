@@ -106,6 +106,24 @@ const conversationResolver = {
       return true;
     }
   ),
+  removeUserFromConversation: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { conversationId: string; userId: string } },
+      { user }: { user: IUserType }
+    ) => {
+      const { conversationId, userId } = input;
+
+      const conversation = await checkIfConversationExists(conversationId);
+
+      await checkIfUserHasRights(conversation, user._id.toString());
+
+      await Conversation.findByIdAndUpdate(conversationId, {
+        $pull: { members: userId },
+      });
+      return true;
+    }
+  ),
 };
 
 export default conversationResolver;

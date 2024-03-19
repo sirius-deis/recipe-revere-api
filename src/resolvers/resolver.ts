@@ -33,6 +33,7 @@ const resolvers = {
     deleteConversation: conversationResolver.deleteConversation,
     changeConversationName: conversationResolver.changeConversationName,
     addUsersToConversation: conversationResolver.addUsersToConversation,
+    removeUserFromConversation: conversationResolver.removeUserFromConversation,
   },
 };
 
