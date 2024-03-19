@@ -1,11 +1,11 @@
 import { GraphQLError } from "graphql";
-import Conversation, { IConversation } from "src/models/conversation";
+import Conversation, { IConversationType } from "src/models/conversation";
 import { IUserType } from "src/models/user";
 import authWrapper from "src/utils/auth";
 
 const checkIfConversationExists = async (
   conversationId: string
-): Promise<IConversation> => {
+): Promise<IConversationType> => {
   const conversation = await Conversation.findById(conversationId);
 
   if (!conversation) {
@@ -45,16 +45,7 @@ const conversationResolver = {
     ) => {
       const { conversationId } = input;
 
-      const conversation = await Conversation.findById(conversationId);
-
-      if (!conversation) {
-        throw new GraphQLError("Conversation not found", {
-          extensions: {
-            code: "NOT_FOUND",
-            http: { status: 404 },
-          },
-        });
-      }
+      const conversation = await checkIfConversationExists(conversationId);
 
       if (conversation.creatorId.equals(user._id)) {
         throw new GraphQLError("You are not the creator of this conversation", {
@@ -76,6 +67,10 @@ const conversationResolver = {
       { input }: { input: { conversationId: string; newName: string } },
       { user }: { user: IUserType }
     ) => {
+      const { conversationId } = input;
+
+      const conversation = await checkIfConversationExists(conversationId);
+
       return true;
     }
   ),

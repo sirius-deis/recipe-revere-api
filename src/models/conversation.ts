@@ -6,7 +6,7 @@ interface IMessage {
   senderId: Types.ObjectId;
 }
 
-export interface IConversation {
+interface IConversation {
   _id: Types.ObjectId;
   name: string;
   creatorId: Types.ObjectId;
@@ -14,7 +14,13 @@ export interface IConversation {
   messages: IMessage[];
 }
 
-type ConversationModel = Model<IConversation, {}>;
+interface IConversationMethods {
+  deleteOne: () => Promise<IConversation | never>;
+}
+
+type ConversationModel = Model<IConversation, {}, IConversationMethods>;
+
+export type IConversationType = IConversation & IConversationMethods;
 
 const ConversationSchema = new Schema<IConversation, ConversationModel>({
   name: {
