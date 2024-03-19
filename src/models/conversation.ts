@@ -1,10 +1,17 @@
 import { Schema, Model, model, Types } from "mongoose";
 
+interface IMessage {
+  _id: Types.ObjectId;
+  messageTest: string;
+  senderId: Types.ObjectId;
+}
+
 interface IConversation {
   _id: Types.ObjectId;
   name: string;
   creatorId: Types.ObjectId;
   members: Types.ObjectId[];
+  messages: IMessage[];
 }
 
 type ConversationModel = Model<IConversation, {}>;
@@ -27,6 +34,12 @@ const ConversationSchema = new Schema<IConversation, ConversationModel>({
     {
       type: Schema.Types.ObjectId,
       ref: "User",
+    },
+  ],
+  messages: [
+    {
+      message_text: String,
+      sender_id: Schema.Types.ObjectId,
     },
   ],
 });
