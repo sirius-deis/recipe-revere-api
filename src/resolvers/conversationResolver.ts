@@ -5,6 +5,7 @@ import authWrapper from "src/utils/auth";
 
 type QueryOptionsType = {
   name?: {};
+  tags?: {};
 };
 
 const checkIfConversationExists = async (
@@ -134,10 +135,14 @@ const conversationResolver = {
   getConversations: authWrapper(
     async (
       _: any,
-      { input }: { input: { query: string; page: number; limit: number } },
+      {
+        input,
+      }: {
+        input: { query: string; page: number; limit: number; tags: string };
+      },
       { user }: { user: IUserType }
     ) => {
-      const { query, page = 1, limit = 10 } = input;
+      const { query, page = 1, limit = 10, tags } = input;
 
       const queryOptions: QueryOptionsType = {};
 
@@ -145,6 +150,12 @@ const conversationResolver = {
         queryOptions.name = {
           $regex: query,
           $options: "i",
+        };
+      }
+
+      if (tags) {
+        queryOptions.tags = {
+          $in: tags,
         };
       }
 

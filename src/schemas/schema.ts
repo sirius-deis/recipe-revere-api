@@ -173,7 +173,7 @@ const typeDefs = gql`
     forgetPassword(email: String!): String!
     getFavorites(): [Recipe]
 
-    getConversations(query: String!, page: Int, limit: Int): ConversationsWithCount
+    getConversations(query: String!, page: Int, limit: Int, tags: [String]): ConversationsWithCount
   }
 `;
 
