@@ -127,6 +127,19 @@ const conversationResolver = {
       return true;
     }
   ),
+  getConversations: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { query: string; page: number } },
+      { user }: { user: IUserType }
+    ) => {
+      const { query, page = 1 } = input;
+
+      const conversations = await Conversation.find();
+
+      return conversations;
+    }
+  ),
 };
 
 export default conversationResolver;

@@ -167,6 +167,8 @@ const typeDefs = gql`
     getRecipe(id: String!): RecipeWithReviewsAndAvgRating
     forgetPassword(email: String!): String!
     getFavorites(): [Recipe]
+
+    getConversations(query: String!, page: Int): [Conversation]
   }
 `;
 
