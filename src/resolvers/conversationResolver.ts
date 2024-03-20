@@ -3,6 +3,10 @@ import Conversation, { IConversationType } from "src/models/conversation";
 import { IUserType } from "src/models/user";
 import authWrapper from "src/utils/auth";
 
+type QueryOptionsType = {
+  name?: {};
+};
+
 const checkIfConversationExists = async (
   conversationId: string
 ): Promise<IConversationType> => {
@@ -130,12 +134,25 @@ const conversationResolver = {
   getConversations: authWrapper(
     async (
       _: any,
-      { input }: { input: { query: string; page: number } },
+      { input }: { input: { query: string; page: number; limit: number } },
       { user }: { user: IUserType }
     ) => {
-      const { query, page = 1 } = input;
+      const { query, page = 1, limit = 10 } = input;
 
-      const conversations = await Conversation.find();
+      const queryOptions: QueryOptionsType = {};
+
+      if (query) {
+        queryOptions.name = {
+          $regex: query,
+          $options: "i",
+        };
+      }
+
+      const skip = limit * (page - 1);
+
+      const conversations = await Conversation.find(queryOptions)
+        .skip(skip)
+        .limit(limit);
 
       return conversations;
     }
