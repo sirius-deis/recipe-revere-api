@@ -150,11 +150,12 @@ const conversationResolver = {
 
       const skip = limit * (page - 1);
 
-      const conversations = await Conversation.find(queryOptions)
-        .skip(skip)
-        .limit(limit);
+      const [documentCount, conversations] = await Promise.all([
+        Conversation.countDocuments(queryOptions),
+        Conversation.find(queryOptions).skip(skip).limit(limit),
+      ]);
 
-      return conversations;
+      return { conversations, conversationsCount: documentCount };
     }
   ),
 };

@@ -159,6 +159,11 @@ const typeDefs = gql`
     amountOfReviews: Int
   }
 
+  type ConversationsWithCount {
+    conversations: [Conversation]
+    conversationsCount: Int
+  }
+
   type Query {
     getUser(userId: String!): User
     getUsers(page: Int): UsersWithAmount
@@ -168,7 +173,7 @@ const typeDefs = gql`
     forgetPassword(email: String!): String!
     getFavorites(): [Recipe]
 
-    getConversations(query: String!, page: Int, limit: Int): [Conversation]
+    getConversations(query: String!, page: Int, limit: Int): ConversationsWithCount
   }
 `;
 
