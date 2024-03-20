@@ -10,7 +10,7 @@ type QueryOptionsType = {
 
 const checkIfConversationExists = async (
   conversationId: string
-): Promise<IConversationType> => {
+): Promise<IConversationType | never> => {
   const conversation = await Conversation.findById(conversationId);
 
   if (!conversation) {
@@ -28,9 +28,23 @@ const checkIfConversationExists = async (
 const checkIfUserHasRights = async (
   conversation: IConversationType,
   userId: string
-) => {
+): Promise<void | never> => {
   if (conversation.creatorId.equals(userId)) {
     throw new GraphQLError("You are not the creator of this conversation", {
+      extensions: {
+        code: "NOT_AUTHORIZED",
+        http: { status: 401 },
+      },
+    });
+  }
+};
+
+const checkIfUserIsInConversation = async (
+  conversation: IConversationType,
+  userId: string
+): Promise<void | never> => {
+  if (conversation.members.find((member) => member._id.equals(userId))) {
+    throw new GraphQLError("You are already in this conversation", {
       extensions: {
         code: "NOT_AUTHORIZED",
         http: { status: 401 },
@@ -176,25 +190,9 @@ const conversationResolver = {
     ) => {
       const { conversationId } = input;
 
-      const conversation = await Conversation.findById(conversationId);
+      const conversation = await checkIfConversationExists(conversationId);
 
-      if (!conversation) {
-        throw new GraphQLError("Conversation not found", {
-          extensions: {
-            code: "NOT_FOUND",
-            http: { status: 404 },
-          },
-        });
-      }
-
-      if (conversation.members.find((member) => member._id.equals(user._id))) {
-        throw new GraphQLError("You are already in this conversation", {
-          extensions: {
-            code: "NOT_AUTHORIZED",
-            http: { status: 401 },
-          },
-        });
-      }
+      checkIfUserIsInConversation(conversation, user._id.toString());
 
       if (conversation.publicity === "private") {
         await Conversation.findByIdAndUpdate(conversationId, {
