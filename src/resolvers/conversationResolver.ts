@@ -196,7 +196,7 @@ const conversationResolver = {
         });
       }
 
-      if (conversation.type === "private") {
+      if (conversation.publicity === "private") {
         await Conversation.findByIdAndUpdate(conversationId, {
           $addToSet: { requests: user._id },
         });
