@@ -139,8 +139,7 @@ const conversationResolver = {
         input,
       }: {
         input: { query: string; page: number; limit: number; tags: string };
-      },
-      { user }: { user: IUserType }
+      }
     ) => {
       const { query, page = 1, limit = 10, tags } = input;
 
@@ -169,6 +168,50 @@ const conversationResolver = {
       return { conversations, conversationsCount: documentCount };
     }
   ),
+  enterConversation: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { conversationId: string } },
+      { user }: { user: IUserType }
+    ) => {
+      const { conversationId } = input;
+
+      const conversation = await Conversation.findById(conversationId);
+
+      if (!conversation) {
+        throw new GraphQLError("Conversation not found", {
+          extensions: {
+            code: "NOT_FOUND",
+            http: { status: 404 },
+          },
+        });
+      }
+
+      if (conversation.members.find((member) => member._id.equals(user._id))) {
+        throw new GraphQLError("You are already in this conversation", {
+          extensions: {
+            code: "NOT_AUTHORIZED",
+            http: { status: 401 },
+          },
+        });
+      }
+
+      if (conversation.type === "private") {
+        await Conversation.findByIdAndUpdate(conversationId, {
+          $addToSet: { requests: user._id },
+        });
+      } else {
+        await Conversation.findByIdAndUpdate(conversationId, {
+          $addToSet: { members: user._id },
+        });
+      }
+
+      return true;
+    }
+  ),
+  leaveConversation: authWrapper(async () => {
+    return true;
+  }),
 };
 
 export default conversationResolver;
