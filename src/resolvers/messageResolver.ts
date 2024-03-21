@@ -2,6 +2,10 @@ import { GraphQLError } from "graphql";
 import Conversation from "src/models/conversation";
 import { IUserType } from "src/models/user";
 import authWrapper from "src/utils/auth";
+import {
+  checkIfConversationExists,
+  checkIfUserIsInConversation,
+} from "src/utils/conversationUtils";
 
 const messageResolver = {
   getMessages: authWrapper(
@@ -12,18 +16,11 @@ const messageResolver = {
     ) => {
       const { conversationId } = input;
 
-      const conversation = await Conversation.findById(conversationId);
+      const conversation = await checkIfConversationExists(conversationId);
 
-      if (!conversation) {
-        throw new GraphQLError("Conversation not found", {
-          extensions: {
-            code: "NOT_FOUND",
-            http: { status: 404 },
-          },
-        });
-      }
+      await checkIfUserIsInConversation(conversation, user._id.toString());
 
-      return {};
+      return { messages: conversation.messages };
     }
   ),
 };
