@@ -41,10 +41,21 @@ const checkIfUserHasRights = async (
 
 const checkIfUserIsInConversation = async (
   conversation: IConversationType,
-  userId: string
+  userId: string,
+  truthy: boolean = true
 ): Promise<void | never> => {
-  if (conversation.members.find((member) => member._id.equals(userId))) {
+  if (
+    truthy &&
+    conversation.members.find((member) => member._id.equals(userId))
+  ) {
     throw new GraphQLError("You are already in this conversation", {
+      extensions: {
+        code: "NOT_AUTHORIZED",
+        http: { status: 401 },
+      },
+    });
+  } else if (conversation.members.find((member) => member._id.equals(userId))) {
+    throw new GraphQLError("You are not in this conversation", {
       extensions: {
         code: "NOT_AUTHORIZED",
         http: { status: 401 },
@@ -207,9 +218,25 @@ const conversationResolver = {
       return true;
     }
   ),
-  leaveConversation: authWrapper(async () => {
-    return true;
-  }),
+  leaveConversation: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { conversationId: string } },
+      { user }: { user: IUserType }
+    ) => {
+      const { conversationId } = input;
+
+      const conversation = await checkIfConversationExists(conversationId);
+
+      checkIfUserIsInConversation(conversation, user._id.toString(), false);
+
+      await Conversation.findByIdAndUpdate(conversationId, {
+        $pull: { members: user._id },
+      });
+
+      return true;
+    }
+  ),
 };
 
 export default conversationResolver;
