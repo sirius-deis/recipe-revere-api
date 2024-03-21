@@ -9,7 +9,9 @@ const resolvers = {
     logout: userResolver.logout,
     getRecipes: recipeResolver.getRecipes,
     getRecipe: recipeResolver.getRecipe,
+    forgetPassword: userResolver.forgetPassword,
     getFavorites: recipeResolver.getFavorites,
+    getConversations: conversationResolver.getConversations,
   },
   Mutation: {
     register: userResolver.register,
@@ -34,6 +36,8 @@ const resolvers = {
     changeConversationName: conversationResolver.changeConversationName,
     addUsersToConversation: conversationResolver.addUsersToConversation,
     removeUserFromConversation: conversationResolver.removeUserFromConversation,
+    leaveConversation: conversationResolver.leaveConversation,
+    enterConversation: conversationResolver.enterConversation,
   },
 };
 
