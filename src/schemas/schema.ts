@@ -95,6 +95,11 @@ const typeDefs = gql`
     userId: String!
   }
 
+  input conversationIdWithMessage {
+    conversationId: String!
+    message: String!
+  }
+
   type Mutation {
     register(input: userInput!): Boolean
     login(input: userInput!): UserWithToken
@@ -113,7 +118,6 @@ const typeDefs = gql`
     blockUser(input: userId): Boolean
     addToShoppingList(input: recipeId): Boolean
     unblockUser(input: userId): Boolean
-
     createConversation(input: conversationNameWithType): Boolean
     deleteConversation(input: conversationId): Boolean
     changeConversationName(input: conversationIdWithNewName): Boolean
@@ -121,6 +125,8 @@ const typeDefs = gql`
     removeUserFromConversation(input: conversationIdWithUserId): Boolean
     enterConversation(input: conversationId): Boolean
     leaveConversation(input: conversationId): Boolean
+
+    sendMessage(input: conversationIdWithMessage): Boolean
   }
 
   type UsersWithAmount {
@@ -166,7 +172,7 @@ const typeDefs = gql`
 
   type Message {
     _id: String;
-    messageTest: String;
+    messageText: String;
     senderId: String;
   }
 

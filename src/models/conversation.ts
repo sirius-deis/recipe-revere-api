@@ -2,7 +2,7 @@ import { Schema, Model, model, Types } from "mongoose";
 
 interface IMessage {
   _id: Types.ObjectId;
-  messageTest: string;
+  messageText: string;
   senderId: Types.ObjectId;
 }
 
