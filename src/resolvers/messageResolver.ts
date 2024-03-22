@@ -28,7 +28,7 @@ const checkIfMessageIsInConversation = async (
 const checkIfMessageBelongsToUser = async (
   message: IMessage,
   userId: string
-) => {
+): Promise<void | never> => {
   if (!message.senderId.equals(userId)) {
     throw new GraphQLError("It's not your message. You can't delete it", {
       extensions: {
@@ -89,6 +89,16 @@ const messageResolver = {
       await checkIfUserIsInConversation(conversation, user._id.toString());
 
       await checkIfMessageIsInConversation(conversation, messageId);
+
+      const message = conversation.messages.find((message) =>
+        message._id.equals(messageId)
+      )!;
+
+      await checkIfMessageBelongsToUser(message, user._id.toString());
+
+      await Conversation.findByIdAndUpdate(conversationId, {
+        $pull: { messages: messageId },
+      });
 
       return true;
     }
