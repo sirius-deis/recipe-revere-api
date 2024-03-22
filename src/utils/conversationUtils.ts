@@ -46,7 +46,7 @@ export const checkIfUserIsInConversation = async (
 export const checkIfUserHasRights = async (
   conversation: IConversationType,
   userId: string
-): Promise<void | never> => {
+): Promise<boolean | never> => {
   if (conversation.creatorId.equals(userId)) {
     throw new GraphQLError("You are not the creator of this conversation", {
       extensions: {
@@ -55,4 +55,5 @@ export const checkIfUserHasRights = async (
       },
     });
   }
+  return true;
 };

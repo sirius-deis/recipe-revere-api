@@ -9,6 +9,7 @@ import authWrapper from "src/utils/auth";
 import {
   checkIfConversationExists,
   checkIfUserIsInConversation,
+  checkIfUserHasRights,
 } from "src/utils/conversationUtils";
 
 const checkIfMessageIsInConversation = async (
@@ -94,7 +95,9 @@ const messageResolver = {
         message._id.equals(messageId)
       )!;
 
-      await checkIfMessageBelongsToUser(message, user._id.toString());
+      if (!(await checkIfUserHasRights(conversation, user._id.toString()))) {
+        await checkIfMessageBelongsToUser(message, user._id.toString());
+      }
 
       await Conversation.findByIdAndUpdate(conversationId, {
         $pull: { messages: messageId },
