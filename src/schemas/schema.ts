@@ -100,6 +100,14 @@ const typeDefs = gql`
     message: String!
   }
 
+  input conversationIdWithMessageId {
+    messageId: String!
+  }
+
+  input messageIdWithText {
+
+  }
+
   type Mutation {
     register(input: userInput!): Boolean
     login(input: userInput!): UserWithToken
@@ -127,6 +135,8 @@ const typeDefs = gql`
     leaveConversation(input: conversationId): Boolean
 
     sendMessage(input: conversationIdWithMessage): Boolean
+    deleteMessage(input: conversationIdWithMessageId): Boolean
+    editMessage(input: messageIdWithText): Boolean
   }
 
   type UsersWithAmount {
