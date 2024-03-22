@@ -1,6 +1,9 @@
 import { GraphQLError } from "graphql";
 import mongoose from "mongoose";
-import Conversation, { IConversationType } from "src/models/conversation";
+import Conversation, {
+  IConversationType,
+  IMessage,
+} from "src/models/conversation";
 import { IUserType } from "src/models/user";
 import authWrapper from "src/utils/auth";
 import {
@@ -17,6 +20,20 @@ const checkIfMessageIsInConversation = async (
       extensions: {
         code: "NOT_FOUND",
         http: { status: 404 },
+      },
+    });
+  }
+};
+
+const checkIfMessageBelongsToUser = async (
+  message: IMessage,
+  userId: string
+) => {
+  if (!message.senderId.equals(userId)) {
+    throw new GraphQLError("It's not your message. You can't delete it", {
+      extensions: {
+        code: "NOT_AUTHORIZED",
+        http: { status: 401 },
       },
     });
   }
@@ -70,6 +87,8 @@ const messageResolver = {
       const conversation = await checkIfConversationExists(conversationId);
 
       await checkIfUserIsInConversation(conversation, user._id.toString());
+
+      await checkIfMessageIsInConversation(conversation, messageId);
 
       return true;
     }
