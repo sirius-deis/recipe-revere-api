@@ -101,11 +101,14 @@ const typeDefs = gql`
   }
 
   input conversationIdWithMessageId {
+    conversationId: String!
     messageId: String!
   }
 
   input messageIdWithText {
-
+    conversationId: String!
+    messageId: String!
+    messageText: String!
   }
 
   type Mutation {

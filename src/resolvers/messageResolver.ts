@@ -103,6 +103,41 @@ const messageResolver = {
       return true;
     }
   ),
+  editMessage: authWrapper(
+    async (
+      _: any,
+      {
+        input,
+      }: {
+        input: {
+          conversationId: string;
+          messageId: string;
+          messageText: string;
+        };
+      },
+      { user }: { user: IUserType }
+    ) => {
+      const { conversationId, messageId, messageText } = input;
+
+      const conversation = await checkIfConversationExists(conversationId);
+
+      await checkIfUserIsInConversation(conversation, user._id.toString());
+
+      await checkIfMessageIsInConversation(conversation, messageId);
+
+      const message = conversation.messages.find((message) =>
+        message._id.equals(messageId)
+      )!;
+
+      await checkIfMessageBelongsToUser(message, user._id.toString());
+
+      message.messageText = messageText;
+
+      await conversation.save();
+
+      return true;
+    }
+  ),
 };
 
 export default messageResolver;
