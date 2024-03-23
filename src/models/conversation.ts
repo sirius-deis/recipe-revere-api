@@ -4,8 +4,8 @@ export interface IMessage {
   _id: Types.ObjectId;
   messageText: string;
   senderId: Types.ObjectId;
-  parentMessageId: Types.ObjectId;
-  createDate: Date;
+  parentMessageId?: Types.ObjectId;
+  createDate?: Date;
 }
 
 interface IConversation {
