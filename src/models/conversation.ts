@@ -2,9 +2,9 @@ import { Schema, Model, model, Types } from "mongoose";
 
 export interface IMessage {
   _id: Types.ObjectId;
-  messageBody?: string;
+  messageBody?: string | undefined;
   senderId: Types.ObjectId;
-  parentMessageId?: string;
+  parentMessageId?: string | undefined;
   createDate?: Date;
   isRead?: boolean;
 }

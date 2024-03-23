@@ -76,19 +76,14 @@ const messageResolver = {
 
       await checkIfUserIsInConversation(conversation, user._id.toString());
 
-      if (parentMessageId) {
-        conversation.messages.push({
-          _id: new mongoose.Types.ObjectId(),
-          senderId: user._id,
-          parentMessageId,
-        });
-      } else {
-        conversation.messages.push({
-          _id: new mongoose.Types.ObjectId(),
-          messageBody: messageText,
-          senderId: user._id,
-        });
-      }
+      conversation.messages.push({
+        _id: new mongoose.Types.ObjectId(),
+        messageBody: messageText,
+        senderId: user._id,
+        parentMessageId,
+      });
+
+      await conversation.save();
 
       return true;
     }
