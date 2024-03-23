@@ -10,7 +10,8 @@ interface IConversation {
   _id: Types.ObjectId;
   name: string;
   creatorId: Types.ObjectId;
-  publicity: string;
+  publicity: "public" | "private";
+  type: "private" | "group";
   requests: Types.ObjectId[];
   members: Types.ObjectId[];
   messages: IMessage[];
@@ -43,6 +44,11 @@ const ConversationSchema = new Schema<IConversation, ConversationModel>({
     type: String,
     required: true,
     enum: ["private", "public"],
+  },
+  type: {
+    type: String,
+    enum: ["private", "group"],
+    default: "private",
   },
   requests: [
     {
