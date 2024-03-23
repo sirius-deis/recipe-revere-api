@@ -2,9 +2,9 @@ import { Schema, Model, model, Types } from "mongoose";
 
 export interface IMessage {
   _id: Types.ObjectId;
-  messageBody: string;
+  messageBody?: string;
   senderId: Types.ObjectId;
-  parentMessageId?: Types.ObjectId;
+  parentMessageId?: string;
   createDate?: Date;
   isRead?: boolean;
 }
@@ -72,7 +72,7 @@ const ConversationSchema = new Schema<IConversation, ConversationModel>({
         type: Schema.Types.ObjectId,
         ref: "User",
       },
-      parentMessageId: Schema.Types.ObjectId,
+      parentMessageId: String,
       createDate: {
         type: Schema.Types.Date,
         default: Date.now(),

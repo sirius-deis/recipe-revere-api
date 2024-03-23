@@ -98,6 +98,7 @@ const typeDefs = gql`
   input conversationIdWithMessage {
     conversationId: String!
     message: String!
+    parentMessageId: String
   }
 
   input conversationIdWithMessageId {

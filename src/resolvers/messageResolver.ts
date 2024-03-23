@@ -59,20 +59,36 @@ const messageResolver = {
   sendMessage: authWrapper(
     async (
       _: any,
-      { input }: { input: { conversationId: string; messageText: string } },
+      {
+        input,
+      }: {
+        input: {
+          conversationId: string;
+          messageText: string;
+          parentMessageId: string;
+        };
+      },
       { user }: { user: IUserType }
     ) => {
-      const { conversationId, messageText } = input;
+      const { conversationId, messageText, parentMessageId } = input;
 
       const conversation = await checkIfConversationExists(conversationId);
 
       await checkIfUserIsInConversation(conversation, user._id.toString());
 
-      conversation.messages.push({
-        _id: new mongoose.Types.ObjectId(),
-        messageBody: messageText,
-        senderId: user._id,
-      });
+      if (parentMessageId) {
+        conversation.messages.push({
+          _id: new mongoose.Types.ObjectId(),
+          senderId: user._id,
+          parentMessageId,
+        });
+      } else {
+        conversation.messages.push({
+          _id: new mongoose.Types.ObjectId(),
+          messageBody: messageText,
+          senderId: user._id,
+        });
+      }
 
       return true;
     }
