@@ -70,7 +70,7 @@ const messageResolver = {
 
       conversation.messages.push({
         _id: new mongoose.Types.ObjectId(),
-        messageText,
+        messageBody: messageText,
         senderId: user._id,
       });
 
@@ -134,7 +134,7 @@ const messageResolver = {
 
       await checkIfMessageBelongsToUser(message, user._id.toString());
 
-      message.messageText = messageText;
+      message.messageBody = messageText;
 
       await conversation.save();
 
