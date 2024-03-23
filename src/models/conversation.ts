@@ -4,6 +4,8 @@ export interface IMessage {
   _id: Types.ObjectId;
   messageText: string;
   senderId: Types.ObjectId;
+  parentMessageId: Types.ObjectId;
+  createDate: Date;
 }
 
 interface IConversation {
@@ -65,7 +67,15 @@ const ConversationSchema = new Schema<IConversation, ConversationModel>({
   messages: [
     {
       message_text: String,
-      sender_id: Schema.Types.ObjectId,
+      sender_id: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+      parentMessageId: Schema.Types.ObjectId,
+      createDate: {
+        type: Schema.Types.Date,
+        default: Date.now(),
+      },
     },
   ],
 });
