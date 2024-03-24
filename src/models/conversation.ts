@@ -1,5 +1,10 @@
 import { Schema, Model, model, Types } from "mongoose";
 
+export interface ILike {
+  _id: Types.ObjectId;
+  userId: Types.ObjectId;
+}
+
 export interface IMessage {
   _id: Types.ObjectId;
   messageBody?: string | undefined;
@@ -7,6 +12,7 @@ export interface IMessage {
   parentMessageId?: string | undefined;
   createDate?: Date;
   isRead?: boolean;
+  likes?: ILike[];
 }
 
 interface IConversation {
@@ -80,6 +86,14 @@ const ConversationSchema = new Schema<IConversation, ConversationModel>({
       isRead: {
         type: Boolean,
         default: false,
+      },
+      likes: {
+        type: [
+          {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+          },
+        ],
       },
     },
   ],
