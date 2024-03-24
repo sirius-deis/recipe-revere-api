@@ -1,7 +1,7 @@
 import { Schema, Model, model, Types } from "mongoose";
 
 export interface ILike {
-  _id: Types.ObjectId;
+  _id?: Types.ObjectId;
   userId: Types.ObjectId;
 }
 
@@ -12,7 +12,7 @@ export interface IMessage {
   parentMessageId?: string | undefined;
   createDate?: Date;
   isRead?: boolean;
-  likes?: ILike[];
+  likes: ILike[];
 }
 
 interface IConversation {

@@ -141,6 +141,7 @@ const typeDefs = gql`
     sendMessage(input: conversationIdWithMessage): Boolean
     deleteMessage(input: conversationIdWithMessageId): Boolean
     editMessage(input: messageIdWithText): Boolean
+    likeMessage(input: conversationIdWithMessageId): Boolean
   }
 
   type UsersWithAmount {

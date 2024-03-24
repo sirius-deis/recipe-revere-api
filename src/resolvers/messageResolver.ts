@@ -81,6 +81,7 @@ const messageResolver = {
         messageBody: messageText,
         senderId: user._id,
         parentMessageId,
+        likes: [],
       });
 
       await conversation.save();
@@ -146,6 +147,48 @@ const messageResolver = {
       await checkIfMessageBelongsToUser(message, user._id.toString());
 
       message.messageBody = messageText;
+
+      await conversation.save();
+
+      return true;
+    }
+  ),
+  likeMessage: authWrapper(
+    async (
+      _: any,
+      {
+        input,
+      }: {
+        input: {
+          messageId: string;
+          conversationId: string;
+        };
+      },
+      { user }: { user: IUserType }
+    ) => {
+      const { messageId, conversationId } = input;
+
+      const conversation = await checkIfConversationExists(conversationId);
+
+      await checkIfUserIsInConversation(conversation, user._id.toString());
+
+      await checkIfMessageIsInConversation(conversation, messageId);
+
+      const message = conversation.messages.find((message) =>
+        message._id.equals(messageId)
+      )!;
+
+      const likeIndex = message.likes.findIndex((like) =>
+        like.userId.equals(user._id)
+      );
+
+      if (likeIndex) {
+        message.likes.splice(likeIndex, 1);
+      } else {
+        message.likes.push({
+          userId: user._id,
+        });
+      }
 
       await conversation.save();
 
