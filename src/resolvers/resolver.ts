@@ -1,6 +1,7 @@
 import userResolver from "./userResolver.js";
 import recipeResolver from "./recipeResolver.js";
 import conversationResolver from "./conversationResolver.js";
+import messageResolver from "./messageResolver.js";
 
 const resolvers = {
   Query: {
@@ -12,6 +13,7 @@ const resolvers = {
     forgetPassword: userResolver.forgetPassword,
     getFavorites: recipeResolver.getFavorites,
     getConversations: conversationResolver.getConversations,
+    getMessages: messageResolver.getMessages,
   },
   Mutation: {
     register: userResolver.register,
@@ -38,6 +40,10 @@ const resolvers = {
     removeUserFromConversation: conversationResolver.removeUserFromConversation,
     leaveConversation: conversationResolver.leaveConversation,
     enterConversation: conversationResolver.enterConversation,
+    sendMessage: messageResolver.sendMessage,
+    deleteMessage: messageResolver.deleteMessage,
+    editMessage: messageResolver.editMessage,
+    likeMessage: messageResolver.likeMessage,
   },
 };
 
