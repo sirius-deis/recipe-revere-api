@@ -26,7 +26,7 @@ const typeDefs = gql`
   }
 
   type User {
-    id: ID!
+    _id: ID!
     name: String
     email: String
     role: String
@@ -173,6 +173,11 @@ const typeDefs = gql`
     rating: Int!
   }
 
+  type RecipeWithAvgRating {
+    recipe: Recipe!
+    averageRating: Float
+  }
+
   type RecipeWithReviewsAndAvgRating {
     recipe: Recipe!
     reviews: [Review]
@@ -195,7 +200,7 @@ const typeDefs = gql`
     getUser(userId: String!): User
     getUsers(page: Int): UsersWithAmount
     logout: Boolean
-    getRecipes(query: String!, page: Int): [Recipe]
+    getRecipes(query: String!, page: Int): [RecipeWithAvgRating]
     getRecipe(id: String!): RecipeWithReviewsAndAvgRating
     forgetPassword(email: String!): String!
     getFavorites(): [Recipe]
