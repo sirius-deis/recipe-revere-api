@@ -6,9 +6,17 @@ interface ISavedRecipe {
   recipeIds: Types.Array<Types.ObjectId>;
 }
 
-type SavedRecipeModel = Model<ISavedRecipe, {}>;
+interface ISavedRecipeMethods {
+  save: () => Promise<ISavedRecipe | never>;
+}
 
-const SavedRecipeSchema = new Schema<ISavedRecipe, SavedRecipeModel>({
+type SavedRecipeModel = Model<ISavedRecipe, {}, ISavedRecipeMethods>;
+
+const SavedRecipeSchema = new Schema<
+  ISavedRecipe,
+  SavedRecipeModel,
+  ISavedRecipeMethods
+>({
   userId: {
     type: Schema.Types.ObjectId,
     required: true,
