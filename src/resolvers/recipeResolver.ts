@@ -480,7 +480,7 @@ const recipeResolver = {
   ),
   getFavorites: authWrapper(
     async (_: any, __: any, { user }: { user: IUserType }) => {
-      const favoriteIds = await Favorite.find({ userId: user._id });
+      const favoriteIds = await Favorite.findById(user._id);
 
       return favoriteIds;
     }
