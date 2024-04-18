@@ -531,6 +531,13 @@ const recipeResolver = {
       return true;
     }
   ),
+  getSavedRecipes: authWrapper(
+    async (_: any, __: any, { user }: { user: IUserType }) => {
+      const savedRecipes = await SavedRecipe.findOne({ userId: user._id });
+
+      return savedRecipes;
+    }
+  ),
 };
 
 export default recipeResolver;
