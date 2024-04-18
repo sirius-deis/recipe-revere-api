@@ -505,6 +505,13 @@ const recipeResolver = {
       return true;
     }
   ),
+  getShoppingList: authWrapper(
+    async (_: any, __: any, { user }: { user: IUserType }) => {
+      const shoppingList = await ShoppingList.findOne({ userId: user._id });
+
+      return shoppingList;
+    }
+  ),
   addToSavedRecipes: authWrapper(
     async (
       _: any,
