@@ -155,8 +155,11 @@ const getFromStoreOrFetch = async (recipeId: string): Promise<Recipe> => {
 };
 
 const fetchRecipesByIds = async (recipeIds: string[]): Promise<Recipe[]> => {
-  const recipeList: Recipe[] = [];
-
+  const recipeList: Recipe[] = await Promise.all(
+    recipeIds.map((recipeId) => {
+      return getFromStoreOrFetch(recipeId);
+    })
+  );
   return recipeList;
 };
 
