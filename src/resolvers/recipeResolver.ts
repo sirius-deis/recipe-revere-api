@@ -565,7 +565,13 @@ const recipeResolver = {
     async (_: any, __: any, { user }: { user: IUserType }) => {
       const savedRecipes = await SavedRecipe.findOne({ userId: user._id });
 
-      return savedRecipes;
+      if (!savedRecipes?.recipeIds) {
+        return [];
+      }
+
+      return await fetchRecipesByIds(
+        savedRecipes?.recipeIds.map((recipeId) => recipeId.toString())
+      );
     }
   ),
 };
