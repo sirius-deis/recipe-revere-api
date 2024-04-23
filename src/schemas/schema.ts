@@ -207,6 +207,7 @@ const typeDefs = gql`
     getConversations(query: String!, page: Int, limit: Int, tags: [String]): ConversationsWithCount
 
     getMessages(conversationId: String): [Message];
+    getSavedRecipes(): [Recipe]
   }
 `;
 
