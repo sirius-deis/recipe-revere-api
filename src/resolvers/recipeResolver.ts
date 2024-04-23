@@ -146,6 +146,20 @@ const fetchRecipeAndSaveToRedis = async (recipeId: string): Promise<Recipe> => {
   return recipeFromResponse;
 };
 
+const getFromStoreOrFetch = async (recipeId: string): Promise<Recipe> => {
+  const recipeFromRedis = await getValue(`recipe-${recipeId}`);
+  if (recipeFromRedis) {
+    return recipeFromRedis;
+  }
+  return await fetchRecipeAndSaveToRedis(recipeId);
+};
+
+const fetchRecipesByIds = async (recipeIds: string[]): Promise<Recipe[]> => {
+  const recipeList: Recipe[] = [];
+
+  return recipeList;
+};
+
 const recipeResolver = {
   getRecipes: authWrapper(
     async (
