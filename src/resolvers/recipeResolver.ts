@@ -500,7 +500,13 @@ const recipeResolver = {
     async (_: any, __: any, { user }: { user: IUserType }) => {
       const favoriteIds = await Favorite.findById(user._id);
 
-      return favoriteIds;
+      if (!favoriteIds?.recipeIds) {
+        return [];
+      }
+
+      return await fetchRecipesByIds(
+        favoriteIds?.recipeIds.map((recipeId) => recipeId.toString())
+      );
     }
   ),
   addToShoppingList: authWrapper(
