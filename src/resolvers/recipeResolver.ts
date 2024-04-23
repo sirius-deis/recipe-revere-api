@@ -562,11 +562,24 @@ const recipeResolver = {
     }
   ),
   getSavedRecipes: authWrapper(
-    async (_: any, __: any, { user }: { user: IUserType }) => {
+    async (
+      _: any,
+      { input }: { input: { size: number } },
+      { user }: { user: IUserType }
+    ) => {
+      const { size } = input;
       const savedRecipes = await SavedRecipe.findOne({ userId: user._id });
 
       if (!savedRecipes?.recipeIds) {
         return [];
+      }
+
+      if (size) {
+        return await fetchRecipesByIds(
+          savedRecipes?.recipeIds
+            .map((recipeId) => recipeId.toString())
+            .slice(-size)
+        );
       }
 
       return await fetchRecipesByIds(
