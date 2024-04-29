@@ -479,20 +479,30 @@ const recipeResolver = {
   addToFavorite: authWrapper(
     async (
       _: any,
-      { input }: { input: { recipeId: string } },
+      { input }: { input: { recipeId: string; title: string } },
       { user }: { user: IUserType }
     ) => {
-      const { recipeId } = input;
+      const { recipeId, title } = input;
 
       const favorite = await Favorite.findById(recipeId);
 
+      let action = "";
+
       if (!favorite) {
-        await fetchRecipeAndSaveToRedis(recipeId);
+        // await fetchRecipeAndSaveToRedis(recipeId);
 
         await Favorite.create({ recipeId, userId: user._id });
+        action = "add";
       } else {
         await Favorite.findOneAndDelete({ recipeId });
+        action = "remove";
       }
+
+      await Activity.create({
+        userId: user._id,
+        activity: `${action} ${title}`,
+        date: Date.now(),
+      });
 
       return true;
     }
