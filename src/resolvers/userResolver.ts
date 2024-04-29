@@ -479,7 +479,14 @@ const userResolver = {
         });
       }
 
-      removeFromFriends(user._id.toString(), userToRemoveId);
+      await Promise.all([
+        removeFromFriends(user._id.toString(), userToRemoveId),
+        Activity.create({
+          userId: user._id,
+          activity: `removed <link to='/users/${user._id}'>${user.name}</link> to friends`,
+          date: Date.now(),
+        }),
+      ]);
 
       return true;
     }
