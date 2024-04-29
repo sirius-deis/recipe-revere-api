@@ -536,6 +536,36 @@ const recipeResolver = {
       return true;
     }
   ),
+  removeFromShoppingList: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { recipeId: string; title: string } },
+      { user }: { user: IUserType }
+    ) => {
+      const { recipeId, title } = input;
+      const recipeInShoppingList = await ShoppingList.findById(recipeId);
+
+      if (!recipeInShoppingList) {
+        throw new GraphQLError("Recipe with provided id wasn't found", {
+          extensions: {
+            code: "NOT_FOUND",
+            http: { status: 404 },
+          },
+        });
+      }
+
+      await Promise.all([
+        recipeInShoppingList.destroy(),
+        Activity.create({
+          userId: user._id,
+          activity: `removed ${title}`,
+          date: Date.now(),
+        }),
+      ]);
+
+      return true;
+    }
+  ),
   getShoppingList: authWrapper(
     async (_: any, __: any, { user }: { user: IUserType }) => {
       const shoppingList = await ShoppingList.findOne({ userId: user._id });
