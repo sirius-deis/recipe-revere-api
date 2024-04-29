@@ -513,10 +513,10 @@ const recipeResolver = {
   addToShoppingList: authWrapper(
     async (
       _: any,
-      { input }: { input: { recipeId: string } },
+      { input }: { input: { recipeId: string; title: string } },
       { user }: { user: IUserType }
     ) => {
-      const { recipeId } = input;
+      const { recipeId, title } = input;
 
       const recipeInShoppingList = await ShoppingList.findById(recipeId);
 
@@ -524,7 +524,14 @@ const recipeResolver = {
         return true;
       }
 
-      await ShoppingList.create({ recipeId, userId: user._id });
+      await Promise.all([
+        ShoppingList.create({ recipeId, userId: user._id }),
+        Activity.create({
+          userId: user._id,
+          activity: `added ${title}`,
+          date: Date.now(),
+        }),
+      ]);
 
       return true;
     }
