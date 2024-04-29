@@ -8,6 +8,7 @@ import Token from "../models/token.js";
 import sendEmail from "../api/email.js";
 import crypto from "crypto";
 import Friends from "src/models/friends.js";
+import Activity from "src/models/activity.js";
 
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 
@@ -442,6 +443,11 @@ const userResolver = {
               $set: { status: 3 },
             }
           ),
+          Activity.create({
+            userId: user._id,
+            activity: `added <link to='/users/${user._id}'>${user.name}</link> to friends`,
+            date: Date.now(),
+          }),
         ]);
       } else {
         removeFromFriends(user._id.toString(), userToAddId);
