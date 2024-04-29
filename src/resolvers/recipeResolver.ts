@@ -8,6 +8,7 @@ import Report from "../models/report.js";
 import Favorite from "src/models/favorite.js";
 import ShoppingList from "src/models/shoppingList.js";
 import SavedRecipe from "src/models/savedRecipe.js";
+import Activity from "src/models/activity.js";
 
 const { EDAMAM_APPLICATION_ID, EDAMAM_APPLICATION_KEY } = process.env;
 
@@ -538,25 +539,36 @@ const recipeResolver = {
   addToSavedRecipes: authWrapper(
     async (
       _: any,
-      { input }: { input: { recipeId: string } },
+      { input }: { input: { recipeId: string; title: string } },
       { user }: { user: IUserType }
     ) => {
-      const { recipeId } = input;
+      const { recipeId, title } = input;
 
       const savedRecipes = await SavedRecipe.findOne({
         userId: user._id,
       });
 
+      let action = "";
+
       if (!savedRecipes?.recipeIds.find((id) => id.equals(recipeId))) {
         savedRecipes?.recipeIds.push(recipeId);
+        action = "saved";
       } else {
         const id = savedRecipes?.recipeIds.findIndex((id) =>
           id.equals(recipeId)
         );
         savedRecipes.recipeIds.splice(id, 1);
+        action = "removed";
       }
 
-      await savedRecipes?.save();
+      await Promise.all([
+        savedRecipes?.save(),
+        Activity.create({
+          userId: user._id,
+          activity: `${action} ${title}`,
+          date: Date.now(),
+        }),
+      ]);
 
       return true;
     }
