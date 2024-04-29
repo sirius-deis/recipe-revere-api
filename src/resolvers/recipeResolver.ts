@@ -270,10 +270,17 @@ const recipeResolver = {
       _: any,
       {
         input,
-      }: { input: { recipeId: string; reviewInput: string; rating: number } },
+      }: {
+        input: {
+          recipeId: string;
+          reviewInput: string;
+          rating: number;
+          title: string;
+        };
+      },
       { user }: { user: IUserType }
     ) => {
-      const { recipeId, reviewInput, rating } = input;
+      const { recipeId, reviewInput, rating, title } = input;
 
       const review = await RecipeReview.findOne({ recipeId, userId: user._id });
       if (review) {
@@ -310,12 +317,19 @@ const recipeResolver = {
         }
       }
 
-      await RecipeReview.create({
-        recipeId,
-        userId: user._id,
-        review: reviewInput,
-        rating,
-      });
+      await Promise.all([
+        RecipeReview.create({
+          recipeId,
+          userId: user._id,
+          review: reviewInput,
+          rating,
+        }),
+        Activity.create({
+          userId: user._id,
+          activity: `added a review to a <link to='/recipe/${recipeId}'>${title}</link>`,
+          date: Date.now(),
+        }),
+      ]);
 
       return true;
     }
