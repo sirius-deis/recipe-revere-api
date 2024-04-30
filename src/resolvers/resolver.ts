@@ -14,6 +14,8 @@ const resolvers = {
     getFavorites: recipeResolver.getFavorites,
     getConversations: conversationResolver.getConversations,
     getMessages: messageResolver.getMessages,
+    getSavedRecipes: recipeResolver.getSavedRecipes,
+    getFriendsActivity: userResolver.getFriendsActivity,
   },
   Mutation: {
     register: userResolver.register,
