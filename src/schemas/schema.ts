@@ -196,6 +196,13 @@ const typeDefs = gql`
     senderId: String;
   }
 
+  type Activity {
+    _id: String;
+    userId: String;
+    activity: String;
+    date: Int;
+  }
+
   type Query {
     getUser(userId: String!): User
     getUsers(page: Int): UsersWithAmount
@@ -208,6 +215,8 @@ const typeDefs = gql`
 
     getMessages(conversationId: String): [Message];
     getSavedRecipes(): [Recipe]
+
+    getFriendsActivity(): [Activity]
   }
 `;
 
