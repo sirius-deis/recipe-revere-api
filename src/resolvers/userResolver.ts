@@ -545,12 +545,23 @@ const userResolver = {
     }
   ),
   getFriendsActivity: authWrapper(
-    async (_: any, __: any, { user }: { user: IUserType }) => {
+    async (
+      _: any,
+      { input }: { input: { page: number } },
+      { user }: { user: IUserType }
+    ) => {
+      const { page = 1 } = input;
+      const limit = 10;
+
       const friendsList = await Friends.find({ recipient: user._id });
+
+      const skip = limit * (page - 1);
 
       const activities = await Activity.find({
         userId: { $in: friendsList.map((friend) => friend.requester._id) },
-      });
+      })
+        .limit(limit)
+        .skip(skip);
 
       activities.sort((act1, act2) => act1.date - act2.date);
 
