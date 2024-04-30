@@ -561,7 +561,8 @@ const userResolver = {
         userId: { $in: friendsList.map((friend) => friend.requester._id) },
       })
         .limit(limit)
-        .skip(skip);
+        .skip(skip)
+        .populate("users");
 
       activities.sort((act1, act2) => act1.date - act2.date);
 

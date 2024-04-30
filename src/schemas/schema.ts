@@ -198,7 +198,7 @@ const typeDefs = gql`
 
   type Activity {
     _id: String;
-    userId: String;
+    userId: User;
     activity: String;
     date: Int;
   }

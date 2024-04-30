@@ -13,6 +13,7 @@ const ActivitySchema = new Schema<IActivity, ActivityModel>({
   userId: {
     type: Schema.Types.ObjectId,
     required: true,
+    ref: "User",
   },
   activity: {
     type: String,
