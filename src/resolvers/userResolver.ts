@@ -544,6 +544,19 @@ const userResolver = {
       return true;
     }
   ),
+  getFriendsActivity: authWrapper(
+    async (_: any, __: any, { user }: { user: IUserType }) => {
+      const friendsList = await Friends.find({ recipient: user._id });
+
+      const activities = await Activity.find({
+        userId: { $in: friendsList.map((friend) => friend.requester._id) },
+      });
+
+      activities.sort((act1, act2) => act1.date - act2.date);
+
+      return activities;
+    }
+  ),
 };
 
 export default userResolver;
