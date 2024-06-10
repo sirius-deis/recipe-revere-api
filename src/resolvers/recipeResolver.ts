@@ -599,7 +599,30 @@ const recipeResolver = {
       return shoppingList;
     }
   ),
+  getSingleFromShoppingList: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { singleShoppingListId: string } },
+      { user }: { user: IUserType }
+    ) => {
+      const { singleShoppingListId } = input;
+      const shoppingListSingle = await ShoppingList.findOne({
+        _id: new mongoose.Types.ObjectId(singleShoppingListId),
+        userId: user._id,
+      });
 
+      if (!shoppingListSingle) {
+        throw new GraphQLError("Recipe with provided id wasn't found", {
+          extensions: {
+            code: "NOT_FOUND",
+            http: { status: 404 },
+          },
+        });
+      }
+
+      return shoppingListSingle;
+    }
+  ),
   addToSavedRecipes: authWrapper(
     async (
       _: any,
