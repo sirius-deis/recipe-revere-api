@@ -4,6 +4,7 @@ interface IShoppingList {
   _id: Types.ObjectId;
   recipeId: Types.ObjectId;
   userId: Types.ObjectId;
+  bought: string[];
 }
 
 interface IShoppingListMethods {
@@ -19,6 +20,9 @@ const ShoppingListSchema = new Schema<
 >({
   recipeId: Schema.Types.ObjectId,
   userId: Schema.Types.ObjectId,
+  bought: {
+    type: [String],
+  },
 });
 
 const ShoppingList = model<IShoppingList, ShoppingListModel>(

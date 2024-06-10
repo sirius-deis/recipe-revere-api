@@ -9,6 +9,7 @@ import Favorite from "src/models/favorite.js";
 import ShoppingList from "src/models/shoppingList.js";
 import SavedRecipe from "src/models/savedRecipe.js";
 import Activity from "src/models/activity.js";
+import mongoose from "mongoose";
 
 const { EDAMAM_APPLICATION_ID, EDAMAM_APPLICATION_KEY } = process.env;
 
@@ -592,11 +593,13 @@ const recipeResolver = {
   ),
   getShoppingList: authWrapper(
     async (_: any, __: any, { user }: { user: IUserType }) => {
-      const shoppingList = await ShoppingList.findOne({ userId: user._id });
+      //TODO: add fetching recipes listed in shopping list
+      const shoppingList = await ShoppingList.find({ userId: user._id });
 
       return shoppingList;
     }
   ),
+
   addToSavedRecipes: authWrapper(
     async (
       _: any,
