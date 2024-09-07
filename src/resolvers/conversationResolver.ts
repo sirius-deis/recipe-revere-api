@@ -142,6 +142,18 @@ const conversationResolver = {
       return { conversations, conversationsCount: documentCount };
     }
   ),
+  getConversation: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { conversationId: string } },
+    ) => {
+      const { conversationId } = input;
+
+      const conversation = await checkIfConversationExists(conversationId);
+
+      return conversation;
+    }
+  ),
   enterConversation: authWrapper(
     async (
       _: any,
