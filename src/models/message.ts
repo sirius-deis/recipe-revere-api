@@ -17,8 +17,8 @@ const MessageSchema = new Schema<IMessage>({
     enum: ["text", "image", "video", "audio"],
     required: true,
   },
-  senderId: { type: Schema.Types.ObjectId, required: true },
-  recipientId: { type: Schema.Types.ObjectId, required: true },
+  senderId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+  recipientId: { type: Schema.Types.ObjectId, required: true, ref: "User" },
   timestamp: { type: Types.Decimal128, default: Date.now },
   isRead: { type: Boolean, default: false},
 })
