@@ -56,6 +56,23 @@ const messageResolver = {
       return { messages: conversation.messages };
     }
   ),
+  getMessage: authWrapper(
+    async (
+      _: any,
+      { input }: { input: { conversationId: string; messageId: string } },
+      { user }: { user: IUserType }
+    ) => {
+      const { conversationId, messageId } = input;
+
+      const conversation = await checkIfConversationExists(conversationId);
+
+      await checkIfUserIsInConversation(conversation, user._id.toString());
+
+      await checkIfMessageIsInConversation(conversation, messageId);
+
+      return { message: conversation.messages.find((message) => message._id.equals(messageId)) };
+    }
+  ),
   sendMessage: authWrapper(
     async (
       _: any,
