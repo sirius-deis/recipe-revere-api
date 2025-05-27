@@ -10,6 +10,7 @@ import ShoppingList from "../models/shoppingList.js";
 import SavedRecipe from "../models/savedRecipe.js";
 import Activity from "../models/activity.js";
 import mongoose from "mongoose";
+import { http } from "winston";
 
 const { EDAMAM_APPLICATION_ID, EDAMAM_APPLICATION_KEY } = process.env;
 
@@ -132,7 +133,7 @@ const attachAverageRatingForAllRecipes = async (
 
 const fetchRecipeAndSaveToRedis = async (recipeId: string): Promise<Recipe> => {
   const response = await axios.get(urlSingle, {
-    params: { uri: `${uri}${recipeId}` },
+    params: { uri: `${uri}${recipeId}`, },
   });
   const data = response.data;
   if (data.hits.length < 1) {
@@ -186,7 +187,7 @@ const recipeResolver = {
       const recipesFromRedis = await getValue(`recipes_pages_q:${query}`);
 
       if (recipesFromRedis && recipesFromRedis[page.toString()]) {
-        return attachAverageRatingForAllRecipes(
+        return await attachAverageRatingForAllRecipes(
           extractRecipesFromObject(recipesFromRedis[page.toString()].hits)
         );
       }
@@ -233,13 +234,35 @@ const recipeResolver = {
         [page.toString()]: { hits: data.hits, next: data._links.next.href },
       });
 
-      return attachAverageRatingForAllRecipes(
+      return await attachAverageRatingForAllRecipes(
         extractRecipesFromObject(data.hits)
       );
     }
   ),
-  getRecipe: authWrapper(async (_: any, args: { id: string }, __: any) => {
-    const { id } = args;
+  getRecipe: authWrapper(async (_: any, args: { id: string, tags: string[] }, __: any) => {
+    let { id } = args
+    const { tags } = args;
+    if(tags[0] && tags[0] !== "RECIPE_OF_THE_DAY") {
+      throw new GraphQLError("Unsupported tag", {
+        extensions: {
+          code: "INPUT_ERROR",
+          http: { status: 400 },
+        }
+      })
+    }
+
+    if(!id && tags[0]) {
+      id = await getValue("recipe_of_the_day_id");
+      if(!id) {
+        throw new GraphQLError("Ups, recipe of the day was not found. Wait until we add a new one", {
+          extensions: {
+            code: "NOT_FOUND",
+            http: { status: 404 },
+          },
+        });
+      }
+    }
+
     const recipeFromRedis = await getValue(`recipe-${id}`);
     if (recipeFromRedis) {
       const [reviews, [averageRating, amountOfReviews]] = await Promise.all([

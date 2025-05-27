@@ -68,14 +68,28 @@ const typeDefs = gql`
   }
 
   type RecipeWithAvgRating {
-    recipe: Recipe!
-    averageRating: Float
+    url: String!
+    label: String
+    image: String
+    source: String
+    dietLabels: [String]
+    healthLabels: [String]
+    cautions: [String]
+    ingredientLines: [String]
+    calories: Float
+    totalWeight: Float
+    totalTime: Float
+    cuisineType: [String]
+    mealType: [String]
+    dishType: [String]
+    
+    avgRating: Float
   }
 
   type RecipeWithReviewsAndAvgRating {
     recipe: Recipe!
     reviews: [Review]
-    averageRating: Float
+    avgRating: Float
     amountOfReviews: Int
   }
 
