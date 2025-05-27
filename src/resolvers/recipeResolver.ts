@@ -5,10 +5,10 @@ import { setValue, getValue } from "../db/redisConnection.js";
 import { IUserType } from "../models/user.js";
 import RecipeReview from "../models/recipeReview.js";
 import Report from "../models/report.js";
-import Favorite from "src/models/favorite.js";
-import ShoppingList from "src/models/shoppingList.js";
-import SavedRecipe from "src/models/savedRecipe.js";
-import Activity from "src/models/activity.js";
+import Favorite from "../models/favorite.js";
+import ShoppingList from "../models/shoppingList.js";
+import SavedRecipe from "../models/savedRecipe.js";
+import Activity from "../models/activity.js";
 import mongoose from "mongoose";
 
 const { EDAMAM_APPLICATION_ID, EDAMAM_APPLICATION_KEY } = process.env;

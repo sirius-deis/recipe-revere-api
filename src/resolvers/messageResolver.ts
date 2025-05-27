@@ -3,14 +3,14 @@ import mongoose from "mongoose";
 import Conversation, {
   IConversationType,
   IMessage,
-} from "src/models/conversation";
-import { IUserType } from "src/models/user";
-import authWrapper from "src/utils/auth";
+} from "../models/conversation.js";
+import { IUserType } from "../models/user.js";
+import authWrapper from "../utils/auth.js";
 import {
   checkIfConversationExists,
   checkIfUserIsInConversation,
   checkIfUserHasRights,
-} from "src/utils/conversationUtils";
+} from "../utils/conversationUtils.js";
 
 const checkIfMessageIsInConversation = async (
   conversation: IConversationType,

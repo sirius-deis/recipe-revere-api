@@ -1,5 +1,5 @@
 import { GraphQLError } from "graphql";
-import Conversation, { IConversationType } from "src/models/conversation";
+import Conversation, { IConversationType } from "../models/conversation.js";
 
 export const checkIfConversationExists = async (
   conversationId: string

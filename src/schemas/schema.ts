@@ -38,6 +38,83 @@ const typeDefs = gql`
     token: String
   }
 
+    type UsersWithAmount {
+    users: [User]
+    amount: Int
+  }
+
+  type Recipe {
+    url: String!
+    label: String
+    image: String
+    source: String
+    dietLabels: [String]
+    healthLabels: [String]
+    cautions: [String]
+    ingredientLines: [String]
+    calories: Float
+    totalWeight: Float
+    totalTime: Float
+    cuisineType: [String]
+    mealType: [String]
+    dishType: [String]
+  }
+
+  type Review {
+    _id: String!
+    userId: String!
+    review: String
+    rating: Int!
+  }
+
+  type RecipeWithAvgRating {
+    recipe: Recipe!
+    averageRating: Float
+  }
+
+  type RecipeWithReviewsAndAvgRating {
+    recipe: Recipe!
+    reviews: [Review]
+    averageRating: Float
+    amountOfReviews: Int
+  }
+
+  type ConversationsWithCount {
+    conversations: [Conversation]
+    conversationsCount: Int
+  }
+
+  type Message {
+    _id: String
+    messageBody: String
+    senderId: String
+    parentMessageId: ID
+    createDate: Int
+    isRead: Boolean
+  }
+
+  type Activity {
+    _id: String
+    userId: User
+    activity: String
+    date: Int
+  }
+
+  type Conversation {
+    _id: ID!
+    name: String!
+    creatorId: String!
+    publicity: String
+    type: String!
+    requests: [User]
+    members: [User]
+    messages: [Message]
+  }
+
+
+
+  
+
   input resetPasswordInput {
     newPassword: String!
     newPasswordConfirm: String!
@@ -144,65 +221,6 @@ const typeDefs = gql`
     likeMessage(input: conversationIdWithMessageId): Boolean
   }
 
-  type UsersWithAmount {
-    users: [User]
-    amount: Int
-  }
-
-  type Recipe {
-    url: String!
-    label: String
-    image: String
-    source: String
-    dietLabels: [String]
-    healthLabels: [String]
-    cautions: [String]
-    ingredientLines: [String]
-    calories: Float
-    totalWeight: Float
-    totalTime: Float
-    cuisineType: [String]
-    mealType: [String]
-    dishType: [String]
-  }
-
-  type Review {
-    _id: String!
-    userId: String!
-    review: String
-    rating: Int!
-  }
-
-  type RecipeWithAvgRating {
-    recipe: Recipe!
-    averageRating: Float
-  }
-
-  type RecipeWithReviewsAndAvgRating {
-    recipe: Recipe!
-    reviews: [Review]
-    averageRating: Float
-    amountOfReviews: Int
-  }
-
-  type ConversationsWithCount {
-    conversations: [Conversation]
-    conversationsCount: Int
-  }
-
-  type Message {
-    _id: String;
-    messageText: String;
-    senderId: String;
-  }
-
-  type Activity {
-    _id: String;
-    userId: User;
-    activity: String;
-    date: Int;
-  }
-
   type Query {
     getUser(userId: String!): User
     getUsers(page: Int): UsersWithAmount
@@ -210,13 +228,13 @@ const typeDefs = gql`
     getRecipes(query: String!, page: Int): [RecipeWithAvgRating]
     getRecipe(id: String, tags: [String]): RecipeWithReviewsAndAvgRating
     forgetPassword(email: String!): String!
-    getFavorites(): [Recipe]
+    getFavorites: [Recipe]
     getConversations(query: String!, page: Int, limit: Int, tags: [String]): ConversationsWithCount
 
-    getMessages(conversationId: String): [Message];
-    getSavedRecipes(): [Recipe]
+    getMessages(conversationId: String): [Message]
+    getSavedRecipes: [Recipe]
 
-    getFriendsActivity(): [Activity]
+    getFriendsActivity: [Activity]
   }
 `;
 

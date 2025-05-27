@@ -7,8 +7,8 @@ import { setValue } from "../db/redisConnection.js";
 import Token from "../models/token.js";
 import sendEmail from "../api/email.js";
 import crypto from "crypto";
-import Friends from "src/models/friends.js";
-import Activity from "src/models/activity.js";
+import Friends from "../models/friends.js";
+import Activity from "../models/activity.js";
 
 const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
 
@@ -187,10 +187,9 @@ const userResolver = {
 
     const refreshToken = signToken(user._id.toString(), "90d");
     res.cookie("refresh-token", refreshToken);
-
     return {
       user: {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
