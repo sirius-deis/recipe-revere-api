@@ -26,3 +26,9 @@ const WEEK = 60 * 60 * 24 * 7;
 
 export const setValue = async (key: string, value: any, options: { EX: number } = { EX: WEEK }) =>
   await client.set(key, JSON.stringify(value), options);
+
+export const appendToRedisList = async (key: string, value: string) => {
+  await client.rPush(key, value)
+}
+
+export const getRedisList = async (key: string) => await client.lRange(key, 0, -1)

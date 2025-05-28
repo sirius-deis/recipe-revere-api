@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 import axios from "axios";
 import authWrapper from "../utils/auth.js";
-import { setValue, getValue } from "../db/redisConnection.js";
+import { setValue, getValue, appendToRedisList, getRedisList } from "../db/redisConnection.js";
 import { IUserType } from "../models/user.js";
 import RecipeReview from "../models/recipeReview.js";
 import Report from "../models/report.js";
@@ -10,7 +10,6 @@ import ShoppingList from "../models/shoppingList.js";
 import SavedRecipe from "../models/savedRecipe.js";
 import Activity from "../models/activity.js";
 import mongoose from "mongoose";
-import { http } from "winston";
 
 const { EDAMAM_APPLICATION_ID, EDAMAM_APPLICATION_KEY } = process.env;
 
@@ -252,9 +251,9 @@ const recipeResolver = {
     }
 
     if(!id && tags[0]) {
-      id = await getValue("recipe_of_the_day_id");
+      id = await getValue(tags[0]);
       if(!id) {
-        throw new GraphQLError("Ups, recipe of the day was not found. Wait until we add a new one", {
+        throw new GraphQLError(`Ups, recipe with the tag ${tags[0]} was not found. Wait until we update it`, {
           extensions: {
             code: "NOT_FOUND",
             http: { status: 404 },
@@ -709,6 +708,39 @@ const recipeResolver = {
       );
     }
   ),
+  setTagsToRecipe: authWrapper(
+    async (
+      _: any,
+      { input }: {input: {recipeId: string, tags: string[]}},
+      { user }: { user: IUserType }
+    ) => {
+      const {recipeId, tags} = input;
+      const allowedRoles = ["admin"]
+      if(!recipeId || !tags || tags.length < 1) {
+        throw new GraphQLError("you need to provide recipeId and tags", {
+          extensions: {
+            code: "INPUT_ERROR",
+            http: {status: 400}
+          }
+        })
+      }
+      if(!allowedRoles.includes(user.role)) {
+        throw new GraphQLError("You are not allowed to set tags", {
+          extensions: {
+            code: "FORBIDDEN",
+            http: {status: 403}
+          }
+        })
+      }
+
+      await Promise.all(tags.map(async (tag) => {
+        await appendToRedisList(tag, recipeId)
+      }))
+
+      return true
+    }
+
+  )
 };
 
 export default recipeResolver;
