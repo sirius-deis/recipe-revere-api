@@ -166,7 +166,10 @@ const fetchRecipesByIds = async (recipeIds: string[]): Promise<Recipe[]> => {
 };
 
 const checkIfTagsExistAndAllowed = (tags: string[], allowedTags: string[]) => {
-  if(!tags.length) {
+  if(!tags) {
+    return  
+  }
+  if(tags && !tags.length) {
     throw new GraphQLError("You need to provide at least one tag", {
       extensions: {
         code: "INPUT_ERROR",
@@ -189,6 +192,7 @@ const checkIfTagsExistAndAllowed = (tags: string[], allowedTags: string[]) => {
 }
 
 const recipeResolver = {
+  // add fetching recipes by query and by tags from redis
   getRecipes: authWrapper(
     async (
       _: any,
@@ -255,7 +259,6 @@ const recipeResolver = {
         ...recipesToInsert,
         [page.toString()]: { hits: data.hits, next: data._links.next.href },
       });
-
       return await attachAverageRatingForAllRecipes(
         extractRecipesFromObject(data.hits)
       );
