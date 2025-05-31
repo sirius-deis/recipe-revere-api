@@ -165,6 +165,29 @@ const fetchRecipesByIds = async (recipeIds: string[]): Promise<Recipe[]> => {
   return recipeList;
 };
 
+const checkIfTagsExistAndAllowed = (tags: string[], allowedTags: string[]) => {
+  if(!tags.length) {
+    throw new GraphQLError("You need to provide at least one tag", {
+      extensions: {
+        code: "INPUT_ERROR",
+        http: { status: 400}
+      }
+    })
+  }
+
+  if(allowedTags.length) {
+    const isTagValid = tags.every((tag) => allowedTags.includes(tag))
+    if(!isTagValid) {
+      throw new GraphQLError("Unsupported tag", {
+        extensions: {
+          code: "INPUT_ERROR",
+          http: { status: 400}
+        }
+      })
+    }
+  }
+}
+
 const recipeResolver = {
   getRecipes: authWrapper(
     async (
@@ -241,17 +264,10 @@ const recipeResolver = {
   getRecipe: authWrapper(async (_: any, args: { id: string, tags: string[] }, __: any) => {
     let { id } = args
     const { tags } = args;
-    if(tags[0] && tags[0] !== "RECIPE_OF_THE_DAY") {
-      throw new GraphQLError("Unsupported tag", {
-        extensions: {
-          code: "INPUT_ERROR",
-          http: { status: 400 },
-        }
-      })
-    }
+    checkIfTagsExistAndAllowed(tags, ["RECIPE_OF_THE_DAY"])
 
     if(!id && tags[0]) {
-      id = await getValue(tags[0]);
+      id = (await getRedisList(tags[0]))[0];
       if(!id) {
         throw new GraphQLError(`Ups, recipe with the tag ${tags[0]} was not found. Wait until we update it`, {
           extensions: {

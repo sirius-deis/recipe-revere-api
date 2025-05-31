@@ -31,4 +31,7 @@ export const appendToRedisList = async (key: string, value: string) => {
   await client.rPush(key, value)
 }
 
-export const getRedisList = async (key: string) => await client.lRange(key, 0, -1)
+export const getRedisList = async (key: string) =>  {
+  const retrievedList = await client.lRange(key, 0, -1)
+  return retrievedList;
+}
