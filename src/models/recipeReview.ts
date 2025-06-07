@@ -2,7 +2,7 @@ import { Schema, Model, model, Types } from 'mongoose';
 
 interface IRecipeReview {
   _id: Types.ObjectId;
-  recipeId: Types.ObjectId;
+  recipeId: string;
   userId: Types.ObjectId;
   rating: number;
   review: string;
@@ -12,7 +12,7 @@ type RecipeReviewModel = Model<IRecipeReview, {}>;
 
 const recipeReviewSchema = new Schema<IRecipeReview, RecipeReviewModel>({
   recipeId: {
-    type: Schema.Types.ObjectId,
+    type: String,
     required: true,
   },
   userId: {

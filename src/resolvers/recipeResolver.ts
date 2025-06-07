@@ -166,25 +166,25 @@ const fetchRecipesByIds = async (recipeIds: string[]): Promise<Recipe[]> => {
 };
 
 const checkIfTagsExistAndAllowed = (tags: string[], allowedTags: string[]) => {
-  if(!tags) {
-    return  
+  if (!tags) {
+    return
   }
-  if(tags && !tags.length) {
+  if (tags && !tags.length) {
     throw new GraphQLError("You need to provide at least one tag", {
       extensions: {
         code: "INPUT_ERROR",
-        http: { status: 400}
+        http: { status: 400 }
       }
     })
   }
 
-  if(allowedTags.length) {
+  if (allowedTags.length) {
     const isTagValid = tags.every((tag) => allowedTags.includes(tag))
-    if(!isTagValid) {
+    if (!isTagValid) {
       throw new GraphQLError("Unsupported tag", {
         extensions: {
           code: "INPUT_ERROR",
-          http: { status: 400}
+          http: { status: 400 }
         }
       })
     }
@@ -196,10 +196,10 @@ const recipeResolver = {
   getRecipes: authWrapper(
     async (
       _: any,
-      args: { query: string; page: number; size: number },
+      args: { query: string; tags: string[], page: number; size: number },
       __: any
     ) => {
-      const { query, page = 1 } = args;
+      const { query, tags, page = 1, size } = args;
 
       if (page < 1) {
         throw new GraphQLError("Page can't be zero or negative value", {
@@ -269,9 +269,13 @@ const recipeResolver = {
     const { tags } = args;
     checkIfTagsExistAndAllowed(tags, ["RECIPE_OF_THE_DAY"])
 
-    if(!id && tags[0]) {
-      id = (await getRedisList(tags[0]))[0];
-      if(!id) {
+    if (!id && tags[0]) {
+      if (process.env.NODE_ENV !== 'development') {
+        id = "c381c46e34e7bbaee72f4b2de2a503d1"
+      } else {
+        id = (await getRedisList(tags[0]))[0];
+      }
+      if (!id) {
         throw new GraphQLError(`Ups, recipe with the tag ${tags[0]} was not found. Wait until we update it`, {
           extensions: {
             code: "NOT_FOUND",
@@ -294,12 +298,12 @@ const recipeResolver = {
         amountOfReviews,
       };
     }
-
     const recipe = await fetchRecipeAndSaveToRedis(id);
     const [reviews, [averageRating, amountOfReviews]] = await Promise.all([
       findReviews(id),
       findAverageRatingAndAmount(id),
     ]);
+
     return {
       recipe,
       reviews,
@@ -730,24 +734,24 @@ const recipeResolver = {
   setTagsToRecipe: authWrapper(
     async (
       _: any,
-      { input }: {input: {recipeId: string, tags: string[]}},
+      { input }: { input: { recipeId: string, tags: string[] } },
       { user }: { user: IUserType }
     ) => {
-      const {recipeId, tags} = input;
+      const { recipeId, tags } = input;
       const allowedRoles = ["admin"]
-      if(!recipeId || !tags || tags.length < 1) {
+      if (!recipeId || !tags || tags.length < 1) {
         throw new GraphQLError("you need to provide recipeId and tags", {
           extensions: {
             code: "INPUT_ERROR",
-            http: {status: 400}
+            http: { status: 400 }
           }
         })
       }
-      if(!allowedRoles.includes(user.role)) {
+      if (!allowedRoles.includes(user.role)) {
         throw new GraphQLError("You are not allowed to set tags", {
           extensions: {
             code: "FORBIDDEN",
-            http: {status: 403}
+            http: { status: 403 }
           }
         })
       }

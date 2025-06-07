@@ -239,7 +239,7 @@ const typeDefs = gql`
     getUser(userId: String!): User
     getUsers(page: Int): UsersWithAmount
     logout: Boolean
-    getRecipes(query: String!, page: Int): [RecipeWithAvgRating]
+    getRecipes(query: String, tags: String[], page: Int): [RecipeWithAvgRating]
     getRecipe(id: String, tags: [String]): RecipeWithReviewsAndAvgRating
     forgetPassword(email: String!): String!
     getFavorites: [Recipe]
