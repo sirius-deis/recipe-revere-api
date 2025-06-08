@@ -195,6 +195,10 @@ const removeDuplicateRecipes = (recipes: Recipe[]): Recipe[] => recipes.filter((
   return self.findIndex((r: Recipe) => r.url === recipe.url) != -1;
 })
 
+const buildStringFromTags = (tags: { type: string, tag: string }[]) => {
+  return tags.reduce((acc, tag) => acc + `${tag.type}=${tag.tag}`, "")
+}
+
 const recipeResolver = {
   // add fetching recipes by query and by tags from redis
   getRecipes: authWrapper(
@@ -216,9 +220,11 @@ const recipeResolver = {
 
       let recipesFromRedis;
 
+      const q = `${url}&${query ? `q=${query}` : ""}${tags && tags.length ? }`;
+
 
       if (query) {
-        recipesFromRedis = await getValue(`recipes_pages_q:${query}`);
+        recipesFromRedis = await getValue(`recipes_pages_q:${q}`);
       } else if (tags && tags.length) {
         const idsByTag = (await Promise.all(tags.map(tag => getRedisList(tag)))).flat();
         const recipesByTag = await fetchRecipesByIds(idsByTag);
@@ -251,14 +257,14 @@ const recipeResolver = {
           const result = await fetchRecipesToPage(
             count,
             page,
-            `${url}&q=${query}`,
+            q,
             recipesFromRedis
           );
           response = result.response;
           recipesToInsert = result.recipesToInsert;
         }
       } else {
-        const result = await fetchRecipesToPage(1, page, `${url}&q=${query}`);
+        const result = await fetchRecipesToPage(1, page, q);
         response = result.response;
         recipesToInsert = result.recipesToInsert;
       }
@@ -274,7 +280,7 @@ const recipeResolver = {
         });
       }
 
-      await setValue(`recipes_pages_q:${query}`, {
+      await setValue(`recipes_pages_q:${q}`, {
         ...recipesFromRedis,
         ...recipesToInsert,
         [page.toString()]: { hits: data.hits, next: data._links.next.href },
