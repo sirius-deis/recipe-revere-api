@@ -191,6 +191,10 @@ const checkIfTagsExistAndAllowed = (tags: string[], allowedTags: string[]) => {
   }
 }
 
+const removeDuplicateRecipes = (recipes: Recipe[]): Recipe[] => recipes.filter((recipe: Recipe, index: number, self: Recipe[]) => {
+  return self.findIndex((r: Recipe) => r.url === recipe.url) != -1;
+})
+
 const recipeResolver = {
   // add fetching recipes by query and by tags from redis
   getRecipes: authWrapper(
@@ -204,13 +208,29 @@ const recipeResolver = {
       if (page < 1) {
         throw new GraphQLError("Page can't be zero or negative value", {
           extensions: {
-            code: "Range_Error",
+            code: "RANGE_ERROR",
             http: { status: 400 },
           },
         });
       }
 
-      const recipesFromRedis = await getValue(`recipes_pages_q:${query}`);
+      let recipesFromRedis;
+
+
+      if (query) {
+        recipesFromRedis = await getValue(`recipes_pages_q:${query}`);
+      } else if (tags && tags.length) {
+        const idsByTag = (await Promise.all(tags.map(tag => getRedisList(tag)))).flat();
+        const recipesByTag = await fetchRecipesByIds(idsByTag);
+        recipesFromRedis = removeDuplicateRecipes(recipesByTag);
+      } else {
+        throw new GraphQLError("You need to provide query or tags", {
+          extensions: {
+            code: "INPUT_ERROR",
+            http: { status: 400 }
+          }
+        })
+      }
 
       if (recipesFromRedis && recipesFromRedis[page.toString()]) {
         return await attachAverageRatingForAllRecipes(
