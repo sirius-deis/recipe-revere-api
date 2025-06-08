@@ -204,7 +204,7 @@ const recipeResolver = {
   getRecipes: authWrapper(
     async (
       _: any,
-      args: { query: string; tags: string[], page: number; size: number },
+      args: { query: string; tags: { type: string, tag: string }[], page: number; size: number },
       __: any
     ) => {
       const { query, tags, page = 1, size } = args;
@@ -220,13 +220,13 @@ const recipeResolver = {
 
       let recipesFromRedis;
 
-      const q = `${url}&${query ? `q=${query}` : ""}${tags && tags.length ? }`;
+      const q = `${url}&${query ? `q=${query}` : ""}${buildStringFromTags(tags)}`;
 
 
       if (query) {
         recipesFromRedis = await getValue(`recipes_pages_q:${q}`);
       } else if (tags && tags.length) {
-        const idsByTag = (await Promise.all(tags.map(tag => getRedisList(tag)))).flat();
+        const idsByTag = await getRedisList(`recipe_tags:${buildStringFromTags(tags)}`);
         const recipesByTag = await fetchRecipesByIds(idsByTag);
         recipesFromRedis = removeDuplicateRecipes(recipesByTag);
       } else {
